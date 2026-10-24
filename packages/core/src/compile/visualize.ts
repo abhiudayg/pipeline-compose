@@ -8,8 +8,9 @@ export interface VisualizeOptions {
 }
 
 export interface StageState {
-  status: 'success' | 'failure' | 'skipped' | 'running';
+  status: 'success' | 'failure' | 'skipped' | 'running' | 'pending';
   durationMs?: number;
+  outputs?: Record<string, unknown>;
 }
 
 const STATUS: Record<string, { bar: string; icon: string; bg: string }> = {
@@ -17,6 +18,7 @@ const STATUS: Record<string, { bar: string; icon: string; bg: string }> = {
   failure: { bar: '#cf222e', icon: 'x', bg: '#ffebe9' },
   skipped: { bar: '#8b949e', icon: 'minus', bg: '#f6f8fa' },
   running: { bar: '#0969da', icon: 'clock', bg: '#ddf4ff' },
+  pending: { bar: '#8b949e', icon: 'clock', bg: '#f6f8fa' },
 };
 
 const OCTICONS: Record<string, string> = {

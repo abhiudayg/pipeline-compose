@@ -207,7 +207,26 @@ pnpm run compile .github/pipelines/pipeline.yml -o .github/workflows/pipeline.ym
 
 # 6. Import task graph from Turborepo, Nx, or Rush
 pnpm run import turbo --config turbo.json
+
+# 7. Launch Live Mission Control Dashboard (Stitch UI + SSE)
+pnpm run dashboard .github/pipelines/pipeline.yml --open
 ```
+
+### 🛰️ Live Mission Control Dashboard
+
+Launch a local cybernetic HUD to inspect your pipeline DAG in real time, view live GitHub Actions statuses via Server-Sent Events (SSE), drill into exported JSON artifacts, and trigger runs:
+
+```bash
+pipeline-compose dashboard .github/pipelines/pipeline.yml --open
+```
+
+| Flag | Default | Description |
+|---|---|---|
+| `--port <number>` | `4321` | HTTP port (auto-increments if port is busy) |
+| `--poll <seconds>` | `5` | GitHub Actions polling interval for SSE updates |
+| `--open` | `false` | Automatically open the browser on startup |
+| `--no-live` | `false` | Offline mode (serves static DAG and local state records) |
+| `--state-dir <path>` | — | Path to locally recorded execution states |
 
 ---
 

@@ -2,6 +2,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
+import { startDashboardServer } from './server.js';
 import {
   buildValidateReport,
   buildSyncPlan,
@@ -84,7 +85,14 @@ function syncUsage(): never {
 }
 
 function rootUsage(): never {
-  console.error('Usage: pipeline-compose <compile|eval|validate|sync|init|import|local|state|visualize> ...');
+  console.error('Usage: pipeline-compose <compile|eval|validate|sync|init|import|local|state|visualize|dashboard|serve> ...');
+  process.exit(1);
+}
+
+function dashboardUsage(): never {
+  console.error(
+    'Usage: pipeline-compose dashboard <pipeline.yml> [--port <number>] [--poll <seconds>] [--open] [--no-live] [--state-dir <path>]',
+  );
   process.exit(1);
 }
 
@@ -871,6 +879,57 @@ function runVisualize(args: string[]): void {
   }
 }
 
+async function runDashboard(args: string[]): Promise<void> {
+  let port = 4321;
+  let pollSeconds = 5;
+  let openBrowser = false;
+  let live = true;
+  let stateDir = '';
+  const positional: string[] = [];
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--port') {
+      port = parseInt(args[++i] ?? '4321', 10);
+    } else if (args[i] === '--poll') {
+      pollSeconds = parseInt(args[++i] ?? '5', 10);
+    } else if (args[i] === '--open') {
+      openBrowser = true;
+    } else if (args[i] === '--no-live') {
+      live = false;
+    } else if (args[i] === '--state-dir') {
+      stateDir = args[++i] ?? '';
+    } else {
+      positional.push(args[i]);
+    }
+  }
+
+  const target = positional[0];
+  if (!target) {
+    dashboardUsage();
+  }
+
+  const handle = await startDashboardServer({
+    pipelinePath: target,
+    port,
+    pollSeconds,
+    openBrowser,
+    live,
+    stateDir: stateDir || undefined,
+  });
+
+  console.log(`Pipeline Compose Mission Control live at: ${handle.url}`);
+  console.log('Press Ctrl+C to stop.');
+
+  process.on('SIGINT', async () => {
+    await handle.close();
+    process.exit(0);
+  });
+  process.on('SIGTERM', async () => {
+    await handle.close();
+    process.exit(0);
+  });
+}
+
 const [command, ...rest] = process.argv.slice(2);
 
 if (command === 'compile') {
@@ -891,6 +950,8 @@ if (command === 'compile') {
   runState(rest);
 } else if (command === 'visualize') {
   runVisualize(rest);
+} else if (command === 'dashboard' || command === 'serve') {
+  await runDashboard(rest);
 } else {
   rootUsage();
 }
