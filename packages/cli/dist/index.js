@@ -16809,7 +16809,8 @@ function buildVisualizeState(pipeline, stateRecords, runId) {
 
 // src/dashboard-html.ts
 function renderDashboardHtml(options) {
-  const { pipeline, initialState = {}, port, pollSeconds, live } = options;
+  const { pipeline, initialState = {}, port, pollSeconds, live, repo, pr } = options;
+  const cleanPr = pr != null && String(pr).trim() ? String(pr).trim().replace(/^#/, "") : "";
   return `<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
@@ -16938,6 +16939,20 @@ function renderDashboardHtml(options) {
         <span class="text-brand-cyan">7f4a9b1</span>
       </div>
 
+      ${repo ? `
+      <!-- Repo Pill -->
+      <a href="https://github.com/${escapeHtml(repo)}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-elevated hover:border-brand-cyan border border-surface-border text-xs code-font text-surface-text transition" title="GitHub Repository">
+        <span class="material-symbols-outlined text-xs text-brand-purple">deployed_code</span>
+        <span id="repo-label">${escapeHtml(repo)}</span>
+      </a>` : ""}
+
+      ${cleanPr ? `
+      <!-- PR Badge -->
+      <a href="${repo ? `https://github.com/${escapeHtml(repo)}/pull/${escapeHtml(cleanPr)}` : "#"}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-purple-500/15 border border-brand-purple/40 text-xs code-font text-brand-purple font-semibold hover:border-brand-purple transition" title="GitHub Pull Request">
+        <span class="material-symbols-outlined text-xs">merge_type</span>
+        <span id="pr-label">PR #${escapeHtml(cleanPr)}</span>
+      </a>` : ""}
+
       <!-- Author Pill -->
       <div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-elevated border border-surface-border text-xs code-font text-surface-muted">
         <span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan flex items-center justify-center text-[10px] font-bold">@</span>
@@ -16989,7 +17004,8 @@ function renderDashboardHtml(options) {
       <div class="flex items-center gap-1.5">
         <span class="text-surface-text font-bold">Run #4928</span>
         <span>/</span>
-        <span>Triggered via <span class="text-surface-text font-semibold">workflow_dispatch</span></span>
+        ${cleanPr ? `<span>Triggered via <a href="${repo ? `https://github.com/${escapeHtml(repo)}/pull/${escapeHtml(cleanPr)}` : "#"}" target="_blank" rel="noopener noreferrer" class="text-brand-purple font-semibold hover:underline">pull_request #${escapeHtml(cleanPr)}</a></span>` : `<span>Triggered via <span class="text-surface-text font-semibold">workflow_dispatch</span></span>`}
+        ${repo ? `<span>on <a href="https://github.com/${escapeHtml(repo)}" target="_blank" rel="noopener noreferrer" class="text-brand-cyan hover:underline">${escapeHtml(repo)}</a></span>` : ""}
       </div>
       <span>\u2022</span>
       <div class="flex items-center gap-1.5">
@@ -17590,7 +17606,7 @@ function defaultFetchLive(pipeline) {
   const byRepo = /* @__PURE__ */ new Map();
   for (const stage of pipeline.stages) {
     if (!stage.workflow) continue;
-    const repo = stage.repo || currentRepo();
+    const repo = stage.repo || detectRepo();
     if (!repo) continue;
     if (!byRepo.has(repo)) byRepo.set(repo, /* @__PURE__ */ new Map());
     byRepo.get(repo).set(stage.workflow, stage.id);
@@ -17617,7 +17633,11 @@ function defaultFetchLive(pipeline) {
   }
   return state;
 }
-function currentRepo() {
+function detectRepo(explicit) {
+  if (explicit && explicit.trim()) return explicit.trim();
+  if (process.env.GITHUB_REPOSITORY && process.env.GITHUB_REPOSITORY.trim()) {
+    return process.env.GITHUB_REPOSITORY.trim();
+  }
   try {
     const remote = execSync("git config --get remote.origin.url", { encoding: "utf8" }).trim();
     const match = remote.match(/[:/]([^/]+\/[^/]+?)(?:\.git)?$/);
@@ -17626,6 +17646,33 @@ function currentRepo() {
     return "";
   }
 }
+function detectPr(explicit) {
+  if (explicit != null && String(explicit).trim()) {
+    return String(explicit).trim().replace(/^#/, "");
+  }
+  if (process.env.GITHUB_REF) {
+    const prMatch = process.env.GITHUB_REF.match(/refs\/pull\/(\d+)\//);
+    if (prMatch) return prMatch[1];
+  }
+  if (process.env.GITHUB_PR_NUMBER && process.env.GITHUB_PR_NUMBER.trim()) {
+    return process.env.GITHUB_PR_NUMBER.trim().replace(/^#/, "");
+  }
+  if (process.env.PR_NUMBER && process.env.PR_NUMBER.trim()) {
+    return process.env.PR_NUMBER.trim().replace(/^#/, "");
+  }
+  try {
+    const ghPr = execSync("gh pr view --json number -q .number", {
+      encoding: "utf8",
+      timeout: 3e3,
+      stdio: ["pipe", "pipe", "ignore"]
+    }).trim();
+    if (ghPr && /^\d+$/.test(ghPr)) {
+      return ghPr;
+    }
+  } catch {
+  }
+  return void 0;
+}
 async function defaultDispatch(pipeline, stageId) {
   try {
     if (stageId) {
@@ -17633,7 +17680,7 @@ async function defaultDispatch(pipeline, stageId) {
       if (!stage || !stage.workflow) {
         return { success: false, message: `Stage ${stageId} not found or has no workflow` };
       }
-      const repo2 = stage.repo || currentRepo();
+      const repo2 = stage.repo || detectRepo();
       const repoArg2 = repo2 ? `--repo "${repo2}"` : "";
       execSync(`gh workflow run "${stage.workflow}" ${repoArg2}`, {
         encoding: "utf8",
@@ -17645,7 +17692,7 @@ async function defaultDispatch(pipeline, stageId) {
     if (!firstWaveStage || !firstWaveStage.workflow) {
       return { success: false, message: "Could not determine initial workflow to dispatch" };
     }
-    const repo = firstWaveStage.repo || currentRepo();
+    const repo = firstWaveStage.repo || detectRepo();
     const repoArg = repo ? `--repo "${repo}"` : "";
     execSync(`gh workflow run "${firstWaveStage.workflow}" ${repoArg}`, {
       encoding: "utf8",
@@ -17665,9 +17712,13 @@ function startDashboardServer(options) {
     live = true,
     openBrowser = false,
     stateDir,
+    repo,
+    pr,
     fetchLiveFn = defaultFetchLive,
     dispatchFn = defaultDispatch
   } = options;
+  const resolvedRepo = detectRepo(repo);
+  const resolvedPr = detectPr(pr);
   const absoluteTarget = path10.resolve(pipelinePath);
   if (!fs11.existsSync(absoluteTarget)) {
     throw new Error(`Pipeline file not found: ${pipelinePath}`);
@@ -17707,7 +17758,9 @@ function startDashboardServer(options) {
         initialState: currentState,
         port,
         pollSeconds,
-        live
+        live,
+        repo: resolvedRepo || void 0,
+        pr: resolvedPr || void 0
       });
       res.writeHead(200, {
         "Content-Type": "text/html; charset=utf-8",
@@ -17951,7 +18004,7 @@ function rootUsage() {
 }
 function dashboardUsage() {
   console.error(
-    "Usage: pipeline-compose dashboard <pipeline.yml> [--port <number>] [--poll <seconds>] [--open] [--no-live] [--state-dir <path>]"
+    "Usage: pc dashboard <pipeline.yml> [--port <number>] [--poll <seconds>] [--open] [--no-live] [--state-dir <path>] [--repo <owner/repo>] [--pr <number>]"
   );
   process.exit(1);
 }
@@ -17969,7 +18022,7 @@ function localUsage() {
 }
 function visualizeUsage() {
   console.error(
-    "Usage: pipeline-compose visualize <pipeline.yml> [--output <path>] [--state-dir <path>] [--run-id <id>] [--open] [--github-summary] [--live]"
+    "Usage: pc visualize <pipeline.yml> [--output <path>] [--state-dir <path>] [--run-id <id>] [--open] [--github-summary] [--live] [--repo <owner/repo>] [--pr <number>]"
   );
   process.exit(1);
 }
@@ -18479,7 +18532,7 @@ function runState(args) {
     stateUsage();
   }
 }
-function currentRepo2() {
+function currentRepo() {
   return process.env.GITHUB_REPOSITORY || void 0;
 }
 function fetchLiveState(pipeline) {
@@ -18487,7 +18540,7 @@ function fetchLiveState(pipeline) {
   const byRepo = /* @__PURE__ */ new Map();
   for (const stage of pipeline.stages) {
     if (!stage.workflow) continue;
-    const repo = stage.repo || currentRepo2();
+    const repo = stage.repo || currentRepo();
     if (!repo) continue;
     if (!byRepo.has(repo)) byRepo.set(repo, /* @__PURE__ */ new Map());
     byRepo.get(repo).set(stage.workflow, stage.id);
@@ -18530,6 +18583,8 @@ function runVisualize(args) {
   let openBrowser = false;
   let githubSummary = false;
   let live = false;
+  let repo = "";
+  let pr = "";
   const positional = [];
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--output") {
@@ -18544,6 +18599,10 @@ function runVisualize(args) {
       githubSummary = true;
     } else if (args[i] === "--live") {
       live = true;
+    } else if (args[i] === "--repo") {
+      repo = args[++i] ?? "";
+    } else if (args[i] === "--pr") {
+      pr = args[++i] ?? "";
     } else {
       positional.push(args[i]);
     }
@@ -18598,11 +18657,19 @@ function runVisualize(args) {
     if (assignments.length > 0) {
       mermaidLines.push("", ...classDefs, ...assignments);
     }
+    const detectedRepo = detectRepo(repo);
+    const detectedPr = detectPr(pr);
     const summary = [
       "## Pipeline Visualizer",
       "",
       `**${resolved.name}** \u2014 ${resolved.stages.length} stages`,
-      "",
+      ...detectedRepo || detectedPr ? [
+        [
+          detectedRepo ? `**Repository:** [\`${detectedRepo}\`](https://github.com/${detectedRepo})` : "",
+          detectedPr ? `**Pull Request:** [**#${detectedPr}**](https://github.com/${detectedRepo || ""}/pull/${detectedPr})` : ""
+        ].filter(Boolean).join(" \u2022 "),
+        ""
+      ] : [],
       "```mermaid",
       ...mermaidLines,
       "```",
@@ -18632,6 +18699,8 @@ async function runDashboard(args) {
   let openBrowser = false;
   let live = true;
   let stateDir = "";
+  let repo = "";
+  let pr = "";
   const positional = [];
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--port") {
@@ -18644,6 +18713,10 @@ async function runDashboard(args) {
       live = false;
     } else if (args[i] === "--state-dir") {
       stateDir = args[++i] ?? "";
+    } else if (args[i] === "--repo") {
+      repo = args[++i] ?? "";
+    } else if (args[i] === "--pr") {
+      pr = args[++i] ?? "";
     } else {
       positional.push(args[i]);
     }
@@ -18658,7 +18731,9 @@ async function runDashboard(args) {
     pollSeconds,
     openBrowser,
     live,
-    stateDir: stateDir || void 0
+    stateDir: stateDir || void 0,
+    repo: repo || void 0,
+    pr: pr || void 0
   });
   console.log(`Pipeline Compose Mission Control live at: ${handle.url}`);
   console.log("Press Ctrl+C to stop.");

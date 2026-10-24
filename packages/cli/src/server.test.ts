@@ -2,7 +2,12 @@ import { describe, it, expect, afterEach } from 'vitest';
 import * as http from 'node:http';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { startDashboardServer, type DashboardServerHandle } from './server.js';
+import {
+  startDashboardServer,
+  detectRepo,
+  detectPr,
+  type DashboardServerHandle,
+} from './server.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -148,6 +153,46 @@ describe('Dashboard Server', () => {
     const json = JSON.parse(res.body);
     expect(json.success).toBe(true);
     expect(dispatchedStage).toBe('ci');
+  });
+
+  it('renders repo and PR badges when repo and pr options are specified', async () => {
+    handle = await startDashboardServer({
+      pipelinePath: pipelineFixture,
+      port: 0,
+      live: false,
+      repo: 'aeswibon/pipeline-action',
+      pr: 104,
+    });
+
+    const res = await fetchHttp(handle.url);
+    expect(res.status).toBe(200);
+    expect(res.body).toContain('https://github.com/aeswibon/pipeline-action');
+    expect(res.body).toContain('https://github.com/aeswibon/pipeline-action/pull/104');
+    expect(res.body).toContain('PR #104');
+    expect(res.body).toContain('pull_request #104');
+  });
+
+  it('detectRepo prioritizes explicit argument and handles environment', () => {
+    expect(detectRepo('custom/repo')).toBe('custom/repo');
+    const orig = process.env.GITHUB_REPOSITORY;
+    try {
+      process.env.GITHUB_REPOSITORY = 'env/repo';
+      expect(detectRepo()).toBe('env/repo');
+    } finally {
+      process.env.GITHUB_REPOSITORY = orig;
+    }
+  });
+
+  it('detectPr normalizes leading hash and reads env vars', () => {
+    expect(detectPr('#99')).toBe('99');
+    expect(detectPr(105)).toBe('105');
+    const origRef = process.env.GITHUB_REF;
+    try {
+      process.env.GITHUB_REF = 'refs/pull/77/merge';
+      expect(detectPr()).toBe('77');
+    } finally {
+      process.env.GITHUB_REF = origRef;
+    }
   });
 
   it('returns 404 for unknown routes', async () => {

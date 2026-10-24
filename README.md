@@ -254,6 +254,8 @@ pc dashboard .github/pipelines/pipeline.yml --open
 | `--open` | `false` | Automatically open the browser on startup |
 | `--no-live` | `false` | Offline mode (serves static DAG and local state records) |
 | `--state-dir <path>` | — | Path to locally recorded execution states |
+| `--repo <owner/repo>` | *(auto-detected)* | Target GitHub repository (auto-detected from git or `GITHUB_REPOSITORY`) |
+| `--pr <number>` | *(auto-detected)* | Pull request number to link and display in the HUD (auto-detected in CI or `gh pr view`) |
 
 ---
 

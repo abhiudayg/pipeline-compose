@@ -6,10 +6,13 @@ export interface DashboardHtmlOptions {
   port: number;
   pollSeconds: number;
   live: boolean;
+  repo?: string;
+  pr?: string | number;
 }
 
 export function renderDashboardHtml(options: DashboardHtmlOptions): string {
-  const { pipeline, initialState = {}, port, pollSeconds, live } = options;
+  const { pipeline, initialState = {}, port, pollSeconds, live, repo, pr } = options;
+  const cleanPr = pr != null && String(pr).trim() ? String(pr).trim().replace(/^#/, '') : '';
 
   return `<!DOCTYPE html>
 <html lang="en" class="dark">
@@ -139,6 +142,20 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
         <span class="text-brand-cyan">7f4a9b1</span>
       </div>
 
+      ${repo ? `
+      <!-- Repo Pill -->
+      <a href="https://github.com/${escapeHtml(repo)}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-elevated hover:border-brand-cyan border border-surface-border text-xs code-font text-surface-text transition" title="GitHub Repository">
+        <span class="material-symbols-outlined text-xs text-brand-purple">deployed_code</span>
+        <span id="repo-label">${escapeHtml(repo)}</span>
+      </a>` : ''}
+
+      ${cleanPr ? `
+      <!-- PR Badge -->
+      <a href="${repo ? `https://github.com/${escapeHtml(repo)}/pull/${escapeHtml(cleanPr)}` : '#'}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-purple-500/15 border border-brand-purple/40 text-xs code-font text-brand-purple font-semibold hover:border-brand-purple transition" title="GitHub Pull Request">
+        <span class="material-symbols-outlined text-xs">merge_type</span>
+        <span id="pr-label">PR #${escapeHtml(cleanPr)}</span>
+      </a>` : ''}
+
       <!-- Author Pill -->
       <div class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-elevated border border-surface-border text-xs code-font text-surface-muted">
         <span class="w-4 h-4 rounded-full bg-brand-cyan/20 text-brand-cyan flex items-center justify-center text-[10px] font-bold">@</span>
@@ -190,7 +207,8 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
       <div class="flex items-center gap-1.5">
         <span class="text-surface-text font-bold">Run #4928</span>
         <span>/</span>
-        <span>Triggered via <span class="text-surface-text font-semibold">workflow_dispatch</span></span>
+        ${cleanPr ? `<span>Triggered via <a href="${repo ? `https://github.com/${escapeHtml(repo)}/pull/${escapeHtml(cleanPr)}` : '#'}" target="_blank" rel="noopener noreferrer" class="text-brand-purple font-semibold hover:underline">pull_request #${escapeHtml(cleanPr)}</a></span>` : `<span>Triggered via <span class="text-surface-text font-semibold">workflow_dispatch</span></span>`}
+        ${repo ? `<span>on <a href="https://github.com/${escapeHtml(repo)}" target="_blank" rel="noopener noreferrer" class="text-brand-cyan hover:underline">${escapeHtml(repo)}</a></span>` : ''}
       </div>
       <span>•</span>
       <div class="flex items-center gap-1.5">

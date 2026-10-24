@@ -19,6 +19,8 @@ export interface DashboardServerOptions {
   live?: boolean;
   openBrowser?: boolean;
   stateDir?: string;
+  repo?: string;
+  pr?: string | number;
   fetchLiveFn?: (pipeline: ResolvedPipeline) => Record<string, StageState>;
   dispatchFn?: (pipeline: ResolvedPipeline, stageId?: string) => Promise<{ success: boolean; message: string }>;
 }
@@ -36,7 +38,7 @@ function defaultFetchLive(pipeline: ResolvedPipeline): Record<string, StageState
 
   for (const stage of pipeline.stages) {
     if (!stage.workflow) continue;
-    const repo = stage.repo || currentRepo();
+    const repo = stage.repo || detectRepo();
     if (!repo) continue;
     if (!byRepo.has(repo)) byRepo.set(repo, new Map());
     byRepo.get(repo)!.set(stage.workflow, stage.id);
@@ -72,7 +74,11 @@ function defaultFetchLive(pipeline: ResolvedPipeline): Record<string, StageState
   return state;
 }
 
-function currentRepo(): string {
+export function detectRepo(explicit?: string): string {
+  if (explicit && explicit.trim()) return explicit.trim();
+  if (process.env.GITHUB_REPOSITORY && process.env.GITHUB_REPOSITORY.trim()) {
+    return process.env.GITHUB_REPOSITORY.trim();
+  }
   try {
     const remote = execSync('git config --get remote.origin.url', { encoding: 'utf8' }).trim();
     const match = remote.match(/[:/]([^/]+\/[^/]+?)(?:\.git)?$/);
@@ -80,6 +86,35 @@ function currentRepo(): string {
   } catch {
     return '';
   }
+}
+
+export function detectPr(explicit?: string | number): string | undefined {
+  if (explicit != null && String(explicit).trim()) {
+    return String(explicit).trim().replace(/^#/, '');
+  }
+  if (process.env.GITHUB_REF) {
+    const prMatch = process.env.GITHUB_REF.match(/refs\/pull\/(\d+)\//);
+    if (prMatch) return prMatch[1];
+  }
+  if (process.env.GITHUB_PR_NUMBER && process.env.GITHUB_PR_NUMBER.trim()) {
+    return process.env.GITHUB_PR_NUMBER.trim().replace(/^#/, '');
+  }
+  if (process.env.PR_NUMBER && process.env.PR_NUMBER.trim()) {
+    return process.env.PR_NUMBER.trim().replace(/^#/, '');
+  }
+  try {
+    const ghPr = execSync('gh pr view --json number -q .number', {
+      encoding: 'utf8',
+      timeout: 3000,
+      stdio: ['pipe', 'pipe', 'ignore'],
+    }).trim();
+    if (ghPr && /^\d+$/.test(ghPr)) {
+      return ghPr;
+    }
+  } catch {
+    // ignore
+  }
+  return undefined;
 }
 
 async function defaultDispatch(
@@ -92,7 +127,7 @@ async function defaultDispatch(
       if (!stage || !stage.workflow) {
         return { success: false, message: `Stage ${stageId} not found or has no workflow` };
       }
-      const repo = stage.repo || currentRepo();
+      const repo = stage.repo || detectRepo();
       const repoArg = repo ? `--repo "${repo}"` : '';
       execSync(`gh workflow run "${stage.workflow}" ${repoArg}`, {
         encoding: 'utf8',
@@ -105,7 +140,7 @@ async function defaultDispatch(
     if (!firstWaveStage || !firstWaveStage.workflow) {
       return { success: false, message: 'Could not determine initial workflow to dispatch' };
     }
-    const repo = firstWaveStage.repo || currentRepo();
+    const repo = firstWaveStage.repo || detectRepo();
     const repoArg = repo ? `--repo "${repo}"` : '';
     execSync(`gh workflow run "${firstWaveStage.workflow}" ${repoArg}`, {
       encoding: 'utf8',
@@ -128,9 +163,14 @@ export function startDashboardServer(
     live = true,
     openBrowser = false,
     stateDir,
+    repo,
+    pr,
     fetchLiveFn = defaultFetchLive,
     dispatchFn = defaultDispatch,
   } = options;
+
+  const resolvedRepo = detectRepo(repo);
+  const resolvedPr = detectPr(pr);
 
   const absoluteTarget = path.resolve(pipelinePath);
   if (!fs.existsSync(absoluteTarget)) {
@@ -179,6 +219,8 @@ export function startDashboardServer(
         port,
         pollSeconds,
         live,
+        repo: resolvedRepo || undefined,
+        pr: resolvedPr || undefined,
       });
       res.writeHead(200, {
         'Content-Type': 'text/html; charset=utf-8',

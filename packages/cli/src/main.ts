@@ -2,7 +2,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
-import { startDashboardServer } from './server.js';
+import { startDashboardServer, detectRepo, detectPr } from './server.js';
 import { runUpdate } from './update.js';
 import {
   buildValidateReport,
@@ -97,7 +97,7 @@ function updateUsage(): never {
 
 function dashboardUsage(): never {
   console.error(
-    'Usage: pipeline-compose dashboard <pipeline.yml> [--port <number>] [--poll <seconds>] [--open] [--no-live] [--state-dir <path>]',
+    'Usage: pc dashboard <pipeline.yml> [--port <number>] [--poll <seconds>] [--open] [--no-live] [--state-dir <path>] [--repo <owner/repo>] [--pr <number>]',
   );
   process.exit(1);
 }
@@ -118,7 +118,7 @@ function localUsage(): never {
 
 function visualizeUsage(): never {
   console.error(
-    'Usage: pipeline-compose visualize <pipeline.yml> [--output <path>] [--state-dir <path>] [--run-id <id>] [--open] [--github-summary] [--live]',
+    'Usage: pc visualize <pipeline.yml> [--output <path>] [--state-dir <path>] [--run-id <id>] [--open] [--github-summary] [--live] [--repo <owner/repo>] [--pr <number>]',
   );
   process.exit(1);
 }
@@ -769,6 +769,8 @@ function runVisualize(args: string[]): void {
   let openBrowser = false;
   let githubSummary = false;
   let live = false;
+  let repo = '';
+  let pr = '';
   const positional: string[] = [];
 
   for (let i = 0; i < args.length; i++) {
@@ -784,6 +786,10 @@ function runVisualize(args: string[]): void {
       githubSummary = true;
     } else if (args[i] === '--live') {
       live = true;
+    } else if (args[i] === '--repo') {
+      repo = args[++i] ?? '';
+    } else if (args[i] === '--pr') {
+      pr = args[++i] ?? '';
     } else {
       positional.push(args[i]);
     }
@@ -850,11 +856,20 @@ function runVisualize(args: string[]): void {
       mermaidLines.push('', ...classDefs, ...assignments);
     }
 
+    const detectedRepo = detectRepo(repo);
+    const detectedPr = detectPr(pr);
+
     const summary = [
       '## Pipeline Visualizer',
       '',
       `**${resolved.name}** — ${resolved.stages.length} stages`,
-      '',
+      ...(detectedRepo || detectedPr ? [
+        [
+          detectedRepo ? `**Repository:** [\`${detectedRepo}\`](https://github.com/${detectedRepo})` : '',
+          detectedPr ? `**Pull Request:** [**#${detectedPr}**](https://github.com/${detectedRepo || ''}/pull/${detectedPr})` : '',
+        ].filter(Boolean).join(' • '),
+        '',
+      ] : []),
       '```mermaid',
       ...mermaidLines,
       '```',
@@ -891,6 +906,8 @@ async function runDashboard(args: string[]): Promise<void> {
   let openBrowser = false;
   let live = true;
   let stateDir = '';
+  let repo = '';
+  let pr = '';
   const positional: string[] = [];
 
   for (let i = 0; i < args.length; i++) {
@@ -904,6 +921,10 @@ async function runDashboard(args: string[]): Promise<void> {
       live = false;
     } else if (args[i] === '--state-dir') {
       stateDir = args[++i] ?? '';
+    } else if (args[i] === '--repo') {
+      repo = args[++i] ?? '';
+    } else if (args[i] === '--pr') {
+      pr = args[++i] ?? '';
     } else {
       positional.push(args[i]);
     }
@@ -921,6 +942,8 @@ async function runDashboard(args: string[]): Promise<void> {
     openBrowser,
     live,
     stateDir: stateDir || undefined,
+    repo: repo || undefined,
+    pr: pr || undefined,
   });
 
   console.log(`Pipeline Compose Mission Control live at: ${handle.url}`);
