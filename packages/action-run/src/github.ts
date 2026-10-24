@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { inflateRawSync } from 'node:zlib';
 
 export type WorkflowSummary = {
   id: number;
@@ -63,6 +64,29 @@ export type WorkflowArtifact = {
 
 export function artifactNameForStage(stageId: string): string {
   return `pipeline-compose-${stageId}`;
+}
+
+export function extractFileFromZipBuffer(zipBytes: Buffer, targetFile: string): string | null {
+  let offset = 0;
+  while (offset + 30 <= zipBytes.length) {
+    const sig = zipBytes.readUInt32LE(offset);
+    if (sig !== 0x04034b50) break;
+    const compMethod = zipBytes.readUInt16LE(offset + 8);
+    const compSize = zipBytes.readUInt32LE(offset + 18);
+    const nameLen = zipBytes.readUInt16LE(offset + 26);
+    const extraLen = zipBytes.readUInt16LE(offset + 28);
+    const name = zipBytes.subarray(offset + 30, offset + 30 + nameLen).toString('utf8');
+    const dataStart = offset + 30 + nameLen + extraLen;
+    const dataEnd = dataStart + compSize;
+    if (dataEnd > zipBytes.length) break;
+    if (name === targetFile || name.endsWith(`/${targetFile}`)) {
+      const slice = zipBytes.subarray(dataStart, dataEnd);
+      if (compMethod === 0) return slice.toString('utf8');
+      if (compMethod === 8) return inflateRawSync(slice).toString('utf8');
+    }
+    offset = dataEnd;
+  }
+  return null;
 }
 
 export class GitHubActionsClient {
@@ -246,6 +270,10 @@ export class GitHubActionsClient {
     const zipBytes = await this.downloadBinary(
       `/repos/${this.owner}/${this.repo}/actions/artifacts/${artifactId}/zip`,
     );
+    const fromMemory = extractFileFromZipBuffer(zipBytes, fileName);
+    if (fromMemory != null) {
+      return fromMemory;
+    }
     const zipPath = join(tmpdir(), `pipeline-compose-artifact-${artifactId}.zip`);
     const extractDir = mkdtempSync(join(tmpdir(), 'pipeline-compose-artifact-'));
     writeFileSync(zipPath, zipBytes);

@@ -37,7 +37,7 @@ sync_action_readme_refs() {
   local file="$1"
   local version="$2"
   perl -i -pe '
-    s/(aeswibon\/pipeline-compose-[A-Za-z0-9-]+@)v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?/${1}v'"$version"'/g
+    s/((?:aeswibon|abhiudayg)\/pipeline-compose-[A-Za-z0-9-]+@)v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?/${1}v'"$version"'/g
   ' "$file"
 }
 

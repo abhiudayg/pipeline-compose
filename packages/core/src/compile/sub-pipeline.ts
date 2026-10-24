@@ -14,7 +14,11 @@ export function resolveSubPipeline(
   pipelineFile: string,
   pipelineKey?: string,
 ): ResolvedPipeline {
+  const root = path.resolve(repoRoot);
   const absolute = path.resolve(repoRoot, pipelineFile);
+  if (!absolute.startsWith(root + path.sep) && absolute !== root) {
+    throw new Error(`Sub-pipeline file ${pipelineFile} escapes repository root`);
+  }
   if (!fs.existsSync(absolute)) {
     throw new Error(`Sub-pipeline file not found: ${pipelineFile}`);
   }

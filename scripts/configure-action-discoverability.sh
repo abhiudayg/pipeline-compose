@@ -2,7 +2,7 @@
 # Apply discoverability metadata (topics + descriptions) to action repos.
 set -euo pipefail
 
-OWNER="${GH_OWNER:-aeswibon}"
+OWNER="${GH_OWNER:-abhiudayg}"
 
 configure() {
   local repo="$1"

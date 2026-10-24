@@ -14,7 +14,10 @@ export type GlobalLockRecord = {
 };
 
 export function globalLockPath(group: string): string {
-  const safe = group.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 120);
+  const safe = group
+    .replace(/\.\./g, '_')
+    .replace(/[^a-zA-Z0-9._-]+/g, '_')
+    .slice(0, 120);
   return `${GLOBAL_LOCK_DIR}/${safe}.json`;
 }
 

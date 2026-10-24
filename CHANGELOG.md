@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.2] - 2026-10-24
+
+### Security
+
+- **Path traversal defense** — `resolveSubPipeline`, `workflowFileDigest`, and `globalLockPath` enforce strict boundary checks against directory traversal (`..`) escaping repository roots.
+- **Expression sandbox isolation** — `evaluateExpression` rejects prototype pollution (`__proto__`, `constructor`, `prototype`) and treats adversarial prompts as inert literal strings.
+- **In-memory decompression** — `downloadArtifactFile` uses Node's native `node:zlib` to extract `outputs.json` directly from memory without spawning host shell processes.
+- **HTML / SVG entity sanitization** — `visualize` escapes quotes (`&quot;`, `&#39;`) preventing SVG/HTML attribute breakout.
+
+### Added
+
+- **agstack verification harness** — `.verify/verify.toml` allowlist, phased runner (`.verify/run.sh`), environment doctor (`.verify/doctor.sh`), and dedicated security test suite (`security.test.ts`).
+- **Feature maps and knowledge base** — added 3 feature maps and 3 comprehensive knowledge base entries in `.verify/`.
+- **Apple container platform testing** — automated verification harness running in isolated Linux `node:22-bookworm-slim` containers.
+
+### Changed
+
+- **Publishing & identity alignment** — realigned release scripts, lock repositories, and distribution remotes to `abhiudayg`.
+
 ## [1.17.1] - 2026-06-18
 
 ### Fixed

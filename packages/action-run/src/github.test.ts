@@ -4,6 +4,7 @@ import {
   matchesDispatchedRun,
   stripRefPrefix,
   artifactNameForStage,
+  extractFileFromZipBuffer,
 } from './github.js';
 import type { WorkflowRun } from './github.js';
 
@@ -258,5 +259,26 @@ describe('GitHubActionsClient', () => {
     await expect(
       client.getWorkflowByPath('.github/workflows/remote.yml'),
     ).rejects.toThrow(/repo_tokens_json includes "other-org\/other-repo"/);
+  });
+});
+
+describe('extractFileFromZipBuffer', () => {
+  it('extracts uncompressed file from ZIP buffer', () => {
+    const fileName = 'outputs.json';
+    const content = '{"version":"1.0.0"}';
+    const nameBytes = Buffer.from(fileName, 'utf8');
+    const contentBytes = Buffer.from(content, 'utf8');
+
+    const header = Buffer.alloc(30);
+    header.writeUInt32LE(0x04034b50, 0); // PK\x03\x04
+    header.writeUInt16LE(0, 8); // compMethod = 0
+    header.writeUInt32LE(contentBytes.length, 18); // compSize
+    header.writeUInt32LE(contentBytes.length, 22); // uncompSize
+    header.writeUInt16LE(nameBytes.length, 26);
+    header.writeUInt16LE(0, 28); // extraLen = 0
+
+    const zip = Buffer.concat([header, nameBytes, contentBytes]);
+    expect(extractFileFromZipBuffer(zip, 'outputs.json')).toBe(content);
+    expect(extractFileFromZipBuffer(zip, 'other.json')).toBeNull();
   });
 });

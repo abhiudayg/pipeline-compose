@@ -10,7 +10,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TAG="${1:-v1.0.0}"
 LICENSE="$ROOT/LICENSE"
-GH_OWNER="${GH_OWNER:-aeswibon}"
+GH_OWNER="${GH_OWNER:-abhiudayg}"
 MONOREPO_SHA="$(git -C "$ROOT" rev-parse HEAD)"
 MONOREPO_SHORT="${MONOREPO_SHA:0:7}"
 
@@ -64,7 +64,7 @@ copy_package_tree() {
     cat > "$work/README.md" <<EOF
 # ${github_repo}
 
-Part of [pipeline-compose](https://github.com/aeswibon/pipeline-compose). See the main repository for documentation.
+Part of [pipeline-compose](https://github.com/abhiudayg/pipeline-compose). See the main repository for documentation.
 EOF
   fi
 
@@ -127,7 +127,7 @@ publish() {
     git -C "$work" commit -m "$(cat <<EOF
 Publish ${github_repo} ${TAG} from pipeline-compose@${MONOREPO_SHA}
 
-Source: aeswibon/pipeline-compose@${MONOREPO_SHORT}
+Source: abhiudayg/pipeline-compose@${MONOREPO_SHORT}
 EOF
 )"
 

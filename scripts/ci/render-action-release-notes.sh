@@ -20,7 +20,7 @@ VERSION="$1"
 ACTION_REPO="$2"
 OUT="${3:-release-notes.md}"
 TAG="v${VERSION}"
-META_REPO="${META_REPO:-aeswibon/pipeline-compose}"
+META_REPO="${META_REPO:-abhiudayg/pipeline-compose}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then

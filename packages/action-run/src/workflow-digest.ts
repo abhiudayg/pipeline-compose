@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import type { GitHubActionsClient } from './github.js';
 
 export function contentDigest(content: string): string {
@@ -9,7 +9,12 @@ export function contentDigest(content: string): string {
 
 export function workflowFileDigest(repoRoot: string, workflowPath: string): string | undefined {
   try {
-    const content = readFileSync(join(repoRoot, workflowPath), 'utf8');
+    const root = resolve(repoRoot);
+    const target = resolve(repoRoot, workflowPath);
+    if (!target.startsWith(root + sep) && target !== root) {
+      return undefined;
+    }
+    const content = readFileSync(target, 'utf8');
     return contentDigest(content);
   } catch {
     return undefined;

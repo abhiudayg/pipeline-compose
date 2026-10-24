@@ -99,6 +99,9 @@ function resolveRef(ref: string, ctx: EvalContext): unknown {
   const root = parts[0];
   if (root === 'github') {
     return parts.slice(1).reduce<unknown>((acc, key) => {
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+        return undefined;
+      }
       if (acc && typeof acc === 'object') {
         return (acc as Record<string, unknown>)[key];
       }

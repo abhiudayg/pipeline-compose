@@ -2,7 +2,7 @@ version: 2
 concurrency:
   group: release-${{ github.ref }}
   global: true
-  lock_repo: aeswibon/pipeline-compose
+  lock_repo: abhiudayg/pipeline-compose
   cancel_in_progress: false
 groups:
   release:
