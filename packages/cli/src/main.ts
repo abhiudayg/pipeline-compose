@@ -86,7 +86,7 @@ function syncUsage(): never {
 }
 
 function rootUsage(): never {
-  console.error('Usage: pipeline-compose <compile|eval|validate|sync|init|import|local|state|visualize|dashboard|serve|update> ...');
+  console.error('Usage: pc (or pipeline-compose) <compile|eval|validate|sync|init|import|local|state|visualize|dashboard|serve|update> ...');
   process.exit(1);
 }
 

@@ -92,7 +92,11 @@ fi
 chmod +x "$TMP_BIN"
 mv "$TMP_BIN" "$TARGET_BIN"
 
+# Create short alias 'pc'
+ln -sf "$TARGET_BIN" "${TARGET_DIR}/pc"
+
 echo -e "  ${GREEN}✓${RESET} Installed binary to: ${BOLD}${TARGET_BIN}${RESET}"
+echo -e "  ${GREEN}✓${RESET} Created short alias: ${BOLD}${TARGET_DIR}/pc${RESET}"
 
 # 6. Verify Execution
 if "$TARGET_BIN" --version >/dev/null 2>&1 || "$TARGET_BIN" >/dev/null 2>&1 || true; then
@@ -105,7 +109,7 @@ case ":$PATH:" in
   *)
     echo ""
     echo -e "${BOLD}Notice:${RESET} ${TARGET_DIR} is not in your current PATH."
-    echo "Add it to your shell configuration to run 'pipeline-compose' from anywhere:"
+    echo "Add it to your shell configuration to run 'pc' or 'pipeline-compose' from anywhere:"
     echo ""
     if [[ "$SHELL" == *"zsh"* ]]; then
       echo -e "  ${CYAN}echo 'export PATH=\"${TARGET_DIR}:\$PATH\"' >> ~/.zshrc && source ~/.zshrc${RESET}"
@@ -119,9 +123,9 @@ esac
 echo ""
 echo -e "${BOLD}${GREEN}==> pipeline-compose CLI successfully installed!${RESET}"
 echo ""
-echo -e "Quick Start Commands:"
-echo -e "  ${CYAN}pipeline-compose dashboard <pipeline.yml> --open${RESET}  # Live Stitch HUD"
-echo -e "  ${CYAN}pipeline-compose validate <pipeline.yml> --simulate${RESET}  # Dry run waves"
-echo -e "  ${CYAN}pipeline-compose compile <pipeline.yml>${RESET}             # Static GHA workflow"
-echo -e "  ${CYAN}pipeline-compose update${RESET}                             # Auto-update CLI"
+echo -e "Quick Start Commands (using 'pc' or 'pipeline-compose'):"
+echo -e "  ${CYAN}pc dashboard <pipeline.yml> --open${RESET}  # Live Stitch HUD"
+echo -e "  ${CYAN}pc validate <pipeline.yml> --simulate${RESET}  # Dry run waves"
+echo -e "  ${CYAN}pc compile <pipeline.yml>${RESET}             # Static GHA workflow"
+echo -e "  ${CYAN}pc update${RESET}                             # Auto-update CLI"
 echo ""

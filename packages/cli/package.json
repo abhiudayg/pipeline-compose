@@ -4,7 +4,8 @@
   "description": "Multi-stage DAG workflow orchestrator and live mission control for GitHub Actions",
   "type": "module",
   "bin": {
-    "pipeline-compose": "./dist/index.js"
+    "pipeline-compose": "./dist/index.js",
+    "pc": "./dist/index.js"
   },
   "files": [
     "dist"

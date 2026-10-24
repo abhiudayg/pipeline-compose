@@ -207,39 +207,36 @@ Keep your installation up to date with a single command:
 
 ```bash
 # Check if a new version is available
-pipeline-compose update --check
+pc update --check
 
 # Upgrade to the latest release in-place
-pipeline-compose update
+pc update
 ```
 
 ---
 
-## Developer Ergonomics & CLI
+## Developer Ergonomics & CLI (`pc`)
 
-Pipeline Compose includes a powerful CLI for pre-merge validation, dry-run simulations, and monorepo task imports:
+Pipeline Compose includes a fast CLI (invoked via **`pc`** or **`pipeline-compose`**) for pre-merge validation, dry-run simulations, live dashboarding, and monorepo task imports:
 
 ```bash
-# 1. Initialize starter pipeline from existing workflows
-pnpm run init
+# 1. Launch Live Mission Control Dashboard (Stitch UI + SSE)
+pc dashboard .github/pipelines/pipeline.yml --open
 
-# 2. Validate pipeline syntax, DAG invariants, and token access
-pnpm run validate .github/pipelines/pipeline.yml --strict --workflows
+# 2. Dry-run simulation (predict waves, skips, and blocked stages)
+pc validate .github/pipelines/pipeline.yml --simulate
 
-# 3. Dry-run simulation (predict waves, skips, and blocked stages)
-pnpm run validate .github/pipelines/pipeline.yml --simulate
+# 3. Generate Mermaid graph for documentation or PR comments
+pc validate .github/pipelines/pipeline.yml --mermaid
 
-# 4. Generate Mermaid graph for documentation or PR comments
-pnpm run validate .github/pipelines/pipeline.yml --mermaid
+# 4. Compile to static GitHub Actions workflow
+pc compile .github/pipelines/pipeline.yml -o .github/workflows/pipeline.yml
 
-# 5. Compile to static GitHub Actions workflow
-pnpm run compile .github/pipelines/pipeline.yml -o .github/workflows/pipeline.yml
+# 5. Initialize starter pipeline from existing workflows
+pc init
 
 # 6. Import task graph from Turborepo, Nx, or Rush
-pnpm run import turbo --config turbo.json
-
-# 7. Launch Live Mission Control Dashboard (Stitch UI + SSE)
-pnpm run dashboard .github/pipelines/pipeline.yml --open
+pc import turbo --config turbo.json
 ```
 
 ### 🛰️ Live Mission Control Dashboard
@@ -247,7 +244,7 @@ pnpm run dashboard .github/pipelines/pipeline.yml --open
 Launch a local cybernetic HUD to inspect your pipeline DAG in real time, view live GitHub Actions statuses via Server-Sent Events (SSE), drill into exported JSON artifacts, and trigger runs:
 
 ```bash
-pipeline-compose dashboard .github/pipelines/pipeline.yml --open
+pc dashboard .github/pipelines/pipeline.yml --open
 ```
 
 | Flag | Default | Description |

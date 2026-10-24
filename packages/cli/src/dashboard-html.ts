@@ -34,13 +34,14 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
               crimson: '#f85149',
               amber: '#d29922',
               blue: '#58a6ff',
+              purple: '#bc8cff',
             },
             surface: {
-              base: '#0d1117',
-              container: '#161b22',
-              elevated: '#21262d',
-              border: '#30363d',
-              muted: '#8b949e',
+              base: '#090d13',
+              container: '#111620',
+              elevated: '#181f2c',
+              border: '#273142',
+              muted: '#7d8b9f',
               text: '#f0f6fc',
             }
           },
@@ -53,29 +54,64 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
     };
   </script>
   <style>
-    body { background-color: #0d1117; color: #f0f6fc; font-family: 'Geist', -apple-system, sans-serif; }
+    body {
+      background-color: #090d13;
+      color: #f0f6fc;
+      font-family: 'Geist', -apple-system, sans-serif;
+      background-image: 
+        radial-gradient(rgba(0, 220, 230, 0.04) 1px, transparent 1px),
+        radial-gradient(rgba(39, 49, 66, 0.25) 1px, transparent 1px);
+      background-size: 32px 32px, 8px 8px;
+      background-position: 0 0, 16px 16px;
+    }
     .code-font { font-family: 'JetBrains Mono', monospace; }
-    .dag-node { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    .dag-node:hover { transform: translateY(-2px); box-shadow: 0 8px 24px -4px rgba(0, 220, 230, 0.15); }
-    .dag-node.active-selected { border-color: #00dce6 !important; box-shadow: 0 0 0 2px rgba(0, 220, 230, 0.4); }
+    .hud-card {
+      background: linear-gradient(180deg, rgba(24, 31, 44, 0.85) 0%, rgba(17, 22, 32, 0.95) 100%);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(39, 49, 66, 0.8);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .hud-card-active {
+      border-color: rgba(0, 220, 230, 0.6) !important;
+      box-shadow: 0 0 24px -2px rgba(0, 220, 230, 0.25) !important;
+    }
+    .dag-node {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dag-node:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 220, 230, 0.7);
+      box-shadow: 0 8px 24px -4px rgba(0, 220, 230, 0.2);
+    }
+    .dag-node.active-selected {
+      border-color: #00dce6 !important;
+      box-shadow: 0 0 0 2px rgba(0, 220, 230, 0.5), 0 8px 24px -2px rgba(0, 220, 230, 0.3) !important;
+    }
     @keyframes pulse-cyan {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(1.15); }
+      0%, 100% { opacity: 1; transform: scale(1); filter: drop-shadow(0 0 4px #00dce6); }
+      50% { opacity: 0.35; transform: scale(1.2); filter: drop-shadow(0 0 8px #00dce6); }
     }
     .pulse-dot { animation: pulse-cyan 1.8s infinite ease-in-out; }
+    @keyframes dash-flow {
+      to { stroke-dashoffset: -32; }
+    }
+    .flow-active {
+      stroke-dasharray: 8 8;
+      animation: dash-flow 1.2s linear infinite;
+    }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0d1117; }
-    ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #8b949e; }
+    ::-webkit-scrollbar-track { background: #090d13; }
+    ::-webkit-scrollbar-thumb { background: #273142; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #7d8b9f; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col bg-[#0d1117] overflow-x-hidden selection:bg-brand-cyan/20 selection:text-brand-cyan">
-  <!-- Top Navigation Telemetry Bar -->
-  <header class="h-16 border-b border-surface-border bg-surface-container/80 backdrop-blur-md sticky top-0 z-40 px-6 flex items-center justify-between">
+<body class="min-h-screen flex flex-col bg-[#090d13] overflow-x-hidden selection:bg-brand-cyan/20 selection:text-brand-cyan">
+  <!-- Top Mission Control Navigation HUD -->
+  <header class="h-16 border-b border-surface-border bg-surface-container/90 backdrop-blur-md sticky top-0 z-40 px-6 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-brand-cyan text-2xl">account_tree</span>
-        <span class="font-bold tracking-wider text-sm text-surface-text uppercase code-font">Pipeline<span class="text-brand-cyan">::</span>Compose</span>
+        <span class="material-symbols-outlined text-brand-cyan text-2xl">rocket_launch</span>
+        <span class="font-bold tracking-wider text-sm text-surface-text uppercase code-font">Pipeline<span class="text-brand-cyan">::</span>Control</span>
       </div>
       <div class="h-4 w-px bg-surface-border"></div>
       <div class="flex items-center gap-2">
@@ -86,42 +122,84 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
       </div>
     </div>
 
-    <!-- Center Control Indicators -->
-    <div class="flex items-center gap-3">
+    <!-- Center HUD Telemetry Indicators -->
+    <div class="hidden md:flex items-center gap-4">
       <div id="connection-status" class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-brand-emerald border border-brand-emerald/30">
         <span class="w-2 h-2 rounded-full bg-brand-emerald pulse-dot"></span>
-        <span id="connection-text">${live ? 'GitHub SSE Active' : 'Offline Mode'}</span>
+        <span id="connection-text">${live ? 'SSE Telemetry Active (5s)' : 'Offline Snapshot'}</span>
       </div>
-      <div class="text-xs text-surface-muted code-font hidden sm:flex items-center gap-1 bg-surface-elevated px-2.5 py-1 rounded border border-surface-border">
-        <span class="material-symbols-outlined text-sm">schedule</span>
-        <span>Poll: ${pollSeconds}s</span>
+      <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-surface-elevated border border-surface-border code-font">
+        <span class="text-surface-muted">DAG WAVES:</span>
+        <span id="kpi-waves" class="text-brand-cyan font-bold">—</span>
+      </div>
+      <div class="flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-surface-elevated border border-surface-border code-font">
+        <span class="text-surface-muted">ACTIVE CONCURRENCY:</span>
+        <span id="kpi-running" class="text-brand-cyan font-bold">0</span>
       </div>
     </div>
 
     <!-- Right Action Center -->
     <div class="flex items-center gap-3">
-      <button id="btn-refresh" class="p-2 rounded-lg bg-surface-elevated hover:bg-surface-border text-surface-muted hover:text-surface-text transition flex items-center" title="Refresh Now">
+      <button id="btn-toggle-terminal" class="px-3 py-1.5 rounded-lg bg-surface-elevated hover:bg-surface-border text-surface-text text-xs code-font transition border border-surface-border flex items-center gap-1.5" title="Toggle Live Log Terminal">
+        <span class="material-symbols-outlined text-sm text-brand-cyan">terminal</span>
+        <span class="hidden sm:inline">Event Log</span>
+      </button>
+      <button id="btn-refresh" class="p-2 rounded-lg bg-surface-elevated hover:bg-surface-border text-surface-muted hover:text-surface-text transition flex items-center" title="Refresh Telemetry">
         <span class="material-symbols-outlined text-lg">refresh</span>
       </button>
-      <button id="btn-trigger" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-cyan text-[#0d1117] font-semibold text-xs hover:bg-[#00c5ce] transition shadow-lg shadow-brand-cyan/20">
+      <button id="btn-trigger" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-brand-cyan text-[#090d13] font-bold text-xs hover:bg-[#00c5ce] transition shadow-lg shadow-brand-cyan/25 uppercase tracking-wide code-font">
         <span class="material-symbols-outlined text-base">play_arrow</span>
-        <span>Dispatch Run</span>
+        <span>Dispatch DAG</span>
       </button>
     </div>
   </header>
 
+  <!-- Telemetry KPI Strip -->
+  <section class="border-b border-surface-border bg-surface-container/40 px-6 py-3.5">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div class="hud-card p-3 rounded-lg flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase font-bold text-surface-muted code-font tracking-wider">Stages Completed</div>
+          <div id="stat-completed" class="text-lg font-bold code-font text-brand-emerald">0 / ${pipeline.stages.length}</div>
+        </div>
+        <span class="material-symbols-outlined text-brand-emerald/40 text-2xl">check_circle</span>
+      </div>
+      <div class="hud-card p-3 rounded-lg flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase font-bold text-surface-muted code-font tracking-wider">Running In-Flight</div>
+          <div id="stat-running" class="text-lg font-bold code-font text-brand-cyan">0</div>
+        </div>
+        <span class="material-symbols-outlined text-brand-cyan/40 text-2xl pulse-dot">sync</span>
+      </div>
+      <div class="hud-card p-3 rounded-lg flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase font-bold text-surface-muted code-font tracking-wider">Total Duration</div>
+          <div id="stat-duration" class="text-lg font-bold code-font text-surface-text">—</div>
+        </div>
+        <span class="material-symbols-outlined text-surface-muted/40 text-2xl">timer</span>
+      </div>
+      <div class="hud-card p-3 rounded-lg flex items-center justify-between">
+        <div>
+          <div class="text-[10px] uppercase font-bold text-surface-muted code-font tracking-wider">Global Lock Repo</div>
+          <div id="stat-lock" class="text-xs font-bold code-font text-surface-text truncate max-w-[120px]">${escapeHtml(pipeline.concurrency?.lock_repo || 'Same Repo')}</div>
+        </div>
+        <span class="material-symbols-outlined text-brand-amber/40 text-2xl">lock</span>
+      </div>
+    </div>
+  </section>
+
   <!-- Main Viewport Layout -->
   <main class="flex-1 flex overflow-hidden relative">
     <!-- DAG Canvas Container -->
-    <div id="dag-container" class="flex-1 overflow-auto p-8 relative flex flex-col items-start min-h-[calc(100vh-4rem)]">
+    <div id="dag-container" class="flex-1 overflow-auto p-8 relative flex flex-col items-start min-h-[calc(100vh-8rem)]">
       <div class="mb-4 flex items-center justify-between w-full max-w-7xl">
         <div class="flex items-center gap-2">
           <h2 class="text-xs font-bold text-surface-muted uppercase tracking-wider code-font">Wave Execution DAG</h2>
-          <span class="text-xs text-surface-muted">— Auto-layout by topological dependencies</span>
+          <span class="text-xs text-surface-muted">— Kahn Topological Sort & Concurrency Boundaries</span>
         </div>
         <div class="flex items-center gap-3 text-xs">
           <div class="flex items-center gap-1.5 text-surface-muted"><span class="w-2 h-2 rounded-full bg-brand-emerald"></span>Success</div>
-          <div class="flex items-center gap-1.5 text-surface-muted"><span class="w-2 h-2 rounded-full bg-brand-cyan"></span>Running</div>
+          <div class="flex items-center gap-1.5 text-surface-muted"><span class="w-2 h-2 rounded-full bg-brand-cyan pulse-dot"></span>Running</div>
           <div class="flex items-center gap-1.5 text-surface-muted"><span class="w-2 h-2 rounded-full bg-brand-crimson"></span>Failed</div>
           <div class="flex items-center gap-1.5 text-surface-muted"><span class="w-2 h-2 rounded-full bg-surface-muted"></span>Pending</div>
         </div>
@@ -137,9 +215,9 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
     <!-- Slide-Over Stage Telemetry Drawer -->
     <aside id="stage-drawer" class="w-96 border-l border-surface-border bg-surface-container flex flex-col z-30 transition-transform duration-300 translate-x-full fixed right-0 top-16 bottom-0 shadow-2xl">
       <!-- Drawer Header -->
-      <div class="p-4 border-b border-surface-border flex items-center justify-between">
+      <div class="p-4 border-b border-surface-border flex items-center justify-between bg-surface-elevated/40">
         <div class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-brand-cyan">terminal</span>
+          <span class="material-symbols-outlined text-brand-cyan">tune</span>
           <span id="drawer-stage-id" class="font-bold text-sm code-font truncate max-w-[200px]">stage-id</span>
         </div>
         <button id="btn-close-drawer" class="p-1 rounded text-surface-muted hover:text-surface-text hover:bg-surface-elevated">
@@ -164,7 +242,7 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
               <span id="drawer-status-pill" class="px-2 py-0.5 rounded font-semibold uppercase text-[10px] bg-emerald-500/10 text-brand-emerald">Pending</span>
             </div>
             <div class="flex items-center justify-between text-surface-muted">
-              <span>Duration</span>
+              <span>Execution Time</span>
               <span id="drawer-duration" class="text-surface-text">—</span>
             </div>
             <div class="flex items-center justify-between text-surface-muted">
@@ -185,9 +263,9 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
           </div>
 
           <div class="pt-2">
-            <button id="btn-dispatch-stage" class="w-full py-2 px-3 rounded-lg bg-surface-elevated hover:bg-surface-border border border-surface-border text-surface-text font-semibold transition flex items-center justify-center gap-2">
-              <span class="material-symbols-outlined text-sm text-brand-cyan">play_arrow</span>
-              <span>Dispatch This Stage</span>
+            <button id="btn-dispatch-stage" class="w-full py-2.5 px-3 rounded-lg bg-brand-cyan/15 hover:bg-brand-cyan/25 border border-brand-cyan/40 text-brand-cyan font-bold transition flex items-center justify-center gap-2 code-font uppercase text-xs">
+              <span class="material-symbols-outlined text-sm">play_arrow</span>
+              <span>Dispatch Stage</span>
             </button>
           </div>
         </div>
@@ -212,7 +290,28 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
     </aside>
   </main>
 
-  <!-- Interactive JavaScript -->
+  <!-- Bottom Cybernetic Log HUD Console -->
+  <footer id="terminal-console" class="border-t border-surface-border bg-surface-container/95 transition-all duration-300 h-44 flex flex-col z-20">
+    <div class="px-4 py-2 border-b border-surface-border bg-surface-elevated/80 flex items-center justify-between">
+      <div class="flex items-center gap-2 text-xs code-font">
+        <span class="material-symbols-outlined text-sm text-brand-cyan">terminal</span>
+        <span class="font-bold text-surface-text">LIVE TELEMETRY STREAM</span>
+        <span class="text-surface-muted">— Real-time event log</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-clear-logs" class="text-[11px] text-surface-muted hover:text-surface-text code-font">Clear</button>
+        <button id="btn-minimize-terminal" class="p-1 rounded text-surface-muted hover:text-surface-text">
+          <span class="material-symbols-outlined text-sm">expand_more</span>
+        </button>
+      </div>
+    </div>
+    <div id="terminal-logs" class="flex-1 overflow-y-auto p-3 code-font text-[11px] text-surface-muted space-y-1 bg-black/40 font-mono">
+      <div class="text-brand-cyan">[SYSTEM] Mission Control initialized for pipeline: ${escapeHtml(pipeline.name)}</div>
+      <div class="text-surface-muted">[SYSTEM] Connected to local server port ${port}</div>
+    </div>
+  </footer>
+
+  <!-- Interactive JavaScript Engine -->
   <script>
     const PIPELINE = ${JSON.stringify(pipeline)};
     let currentState = ${JSON.stringify(initialState)};
@@ -223,8 +322,18 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
       failure: { color: '#f85149', bg: 'rgba(248, 81, 73, 0.12)', border: '#f85149', icon: 'cancel', text: 'Failed' },
       running: { color: '#00dce6', bg: 'rgba(0, 220, 230, 0.12)', border: '#00dce6', icon: 'sync', text: 'Running' },
       skipped: { color: '#8b949e', bg: 'rgba(139, 148, 158, 0.1)', border: '#8b949e', icon: 'block', text: 'Skipped' },
-      pending: { color: '#8b949e', bg: 'rgba(139, 148, 158, 0.05)', border: '#30363d', icon: 'hourglass_empty', text: 'Pending' },
+      pending: { color: '#8b949e', bg: 'rgba(139, 148, 158, 0.05)', border: '#273142', icon: 'hourglass_empty', text: 'Pending' },
     };
+
+    function appendLog(text, colorClass = 'text-surface-muted') {
+      const container = document.getElementById('terminal-logs');
+      const time = new Date().toISOString().substring(11, 19);
+      const line = document.createElement('div');
+      line.className = colorClass;
+      line.textContent = '[' + time + '] ' + text;
+      container.appendChild(line);
+      container.scrollTop = container.scrollHeight;
+    }
 
     function formatDuration(ms) {
       if (ms == null) return '—';
@@ -267,14 +376,36 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
       return waves;
     }
 
+    function updateKpis(waves) {
+      document.getElementById('kpi-waves').textContent = waves.length;
+
+      let completedCount = 0;
+      let runningCount = 0;
+      let totalDurationMs = 0;
+
+      for (const stage of PIPELINE.stages) {
+        const s = currentState[stage.id];
+        if (s?.status === 'success') completedCount++;
+        if (s?.status === 'running') runningCount++;
+        if (s?.durationMs) totalDurationMs += s.durationMs;
+      }
+
+      document.getElementById('stat-completed').textContent = completedCount + ' / ' + PIPELINE.stages.length;
+      document.getElementById('stat-running').textContent = runningCount;
+      document.getElementById('kpi-running').textContent = runningCount;
+      document.getElementById('stat-duration').textContent = formatDuration(totalDurationMs);
+    }
+
     function renderDag() {
       const waves = calculateWaves();
-      const NODE_W = 260;
-      const NODE_H = 80;
-      const COL_GAP = 64;
-      const ROW_GAP = 24;
-      const PAD_X = 32;
-      const PAD_Y = 32;
+      updateKpis(waves);
+
+      const NODE_W = 270;
+      const NODE_H = 88;
+      const COL_GAP = 72;
+      const ROW_GAP = 28;
+      const PAD_X = 36;
+      const PAD_Y = 36;
 
       const nodeCoords = new Map();
       const nodesContainer = document.getElementById('dag-nodes');
@@ -288,8 +419,8 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
       const totalW = PAD_X * 2 + waves.length * NODE_W + (waves.length - 1) * COL_GAP;
       const totalH = PAD_Y * 2 + maxInWave * NODE_H + (maxInWave - 1) * ROW_GAP;
 
-      viewport.style.width = Math.max(totalW, 900) + 'px';
-      viewport.style.height = Math.max(totalH, 440) + 'px';
+      viewport.style.width = Math.max(totalW, 960) + 'px';
+      viewport.style.height = Math.max(totalH, 460) + 'px';
       edgesSvg.setAttribute('viewBox', '0 0 ' + viewport.offsetWidth + ' ' + viewport.offsetHeight);
 
       // Render Wave Columns and Stage Cards
@@ -305,9 +436,9 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
 
           const card = document.createElement('div');
           card.id = 'node-' + stage.id;
-          card.className = 'dag-node absolute rounded-xl p-3.5 flex flex-col justify-between cursor-pointer border ' +
+          card.className = 'dag-node absolute rounded-xl p-3.5 flex flex-col justify-between cursor-pointer hud-card ' +
             (isSelected ? 'active-selected ' : '') +
-            'bg-surface-container hover:border-brand-cyan/60';
+            (st === 'running' ? 'hud-card-active ' : '');
           card.style.left = x + 'px';
           card.style.top = y + 'px';
           card.style.width = NODE_W + 'px';
@@ -316,16 +447,19 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
 
           card.innerHTML = \`
             <div class="flex items-center justify-between gap-2">
-              <span class="font-bold text-xs text-surface-text code-font truncate">\${escapeHtml(stage.id)}</span>
-              <span class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase code-font"
-                    style="color: \${conf.color}; background-color: \${conf.bg};">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-surface-elevated text-surface-muted code-font font-bold">W-\${wi + 1}</span>
+                <span class="font-bold text-xs text-surface-text code-font truncate">\${escapeHtml(stage.id)}</span>
+              </div>
+              <span class="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase code-font"
+                    style="color: \${conf.color}; background-color: \${conf.bg}; border: 1px solid \${conf.color}33;">
                 \${st === 'running' ? '<span class="w-1.5 h-1.5 rounded-full bg-brand-cyan pulse-dot"></span>' : ''}
                 \${conf.text}
               </span>
             </div>
-            <div class="flex items-center justify-between text-[11px] text-surface-muted code-font">
-              <span class="truncate max-w-[140px] text-[10px]">\${escapeHtml(stage.workflow || stage.run || 'inline')}</span>
-              <span>\${formatDuration(currentState[stage.id]?.durationMs)}</span>
+            <div class="flex items-center justify-between text-[11px] text-surface-muted code-font pt-1">
+              <span class="truncate max-w-[150px] text-[10px] text-surface-muted/90">\${escapeHtml(stage.workflow || stage.run || 'inline')}</span>
+              <span class="font-semibold text-surface-text">\${formatDuration(currentState[stage.id]?.durationMs)}</span>
             </div>
           \`;
 
@@ -350,14 +484,18 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
             const cx = (x1 + x2) / 2;
 
             const fromStatus = (currentState[depId]?.status) || 'pending';
-            const strokeColor = fromStatus === 'success' ? '#3fb950' : fromStatus === 'running' ? '#00dce6' : '#30363d';
+            const toStatus = (currentState[stage.id]?.status) || 'pending';
+            const isFlowing = fromStatus === 'running' || toStatus === 'running';
+
+            const strokeColor = fromStatus === 'success' ? '#3fb950' : isFlowing ? '#00dce6' : '#273142';
 
             svgContent += \`
               <path d="M\${x1},\${y1} C\${cx},\${y1} \${cx},\${y2} \${x2},\${y2}"
                     fill="none"
                     stroke="\${strokeColor}"
                     stroke-width="2"
-                    stroke-opacity="0.8"/>
+                    stroke-opacity="\${isFlowing ? '1' : '0.8'}"
+                    class="\${isFlowing ? 'flow-active' : ''}"/>
             \`;
           });
         });
@@ -401,6 +539,8 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
 
       document.getElementById('drawer-outputs-json').textContent = JSON.stringify(currentState[stage.id]?.outputs || {}, null, 2);
       document.getElementById('drawer-config-json').textContent = JSON.stringify(stage, null, 2);
+
+      appendLog('Selected stage ' + stageId + ' (status: ' + st + ')');
     }
 
     function closeDrawer() {
@@ -429,34 +569,56 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
 
     document.getElementById('btn-close-drawer').addEventListener('click', closeDrawer);
 
+    // Terminal minimize/toggle
+    let terminalOpen = true;
+    function toggleTerminal() {
+      const term = document.getElementById('terminal-console');
+      terminalOpen = !terminalOpen;
+      if (terminalOpen) {
+        term.classList.remove('h-8');
+        term.classList.add('h-44');
+      } else {
+        term.classList.remove('h-44');
+        term.classList.add('h-8');
+      }
+    }
+    document.getElementById('btn-toggle-terminal').addEventListener('click', toggleTerminal);
+    document.getElementById('btn-minimize-terminal').addEventListener('click', toggleTerminal);
+    document.getElementById('btn-clear-logs').addEventListener('click', () => {
+      document.getElementById('terminal-logs').innerHTML = '';
+      appendLog('Logs cleared');
+    });
+
     // Copy JSON Helper
     document.getElementById('btn-copy-outputs').addEventListener('click', () => {
       const text = document.getElementById('drawer-outputs-json').textContent;
       navigator.clipboard.writeText(text);
-      alert('Outputs JSON copied to clipboard');
+      appendLog('Copied outputs JSON to clipboard', 'text-brand-cyan');
     });
 
     // Trigger Run Button
     document.getElementById('btn-trigger').addEventListener('click', async () => {
       if (!confirm('Dispatch full pipeline "' + PIPELINE.name + '" on GitHub Actions?')) return;
+      appendLog('Initiating dispatch for pipeline: ' + PIPELINE.name + '...', 'text-brand-cyan');
       try {
         const res = await fetch('/api/dispatch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         const data = await res.json();
-        alert(data.message || 'Dispatch requested');
+        appendLog('Dispatch outcome: ' + (data.message || 'Success'), data.success ? 'text-brand-emerald' : 'text-brand-crimson');
       } catch (err) {
-        alert('Failed to dispatch: ' + err.message);
+        appendLog('Failed to dispatch: ' + err.message, 'text-brand-crimson');
       }
     });
 
     document.getElementById('btn-dispatch-stage').addEventListener('click', async () => {
       if (!selectedStageId) return;
       if (!confirm('Dispatch individual stage "' + selectedStageId + '"?')) return;
+      appendLog('Initiating dispatch for stage: ' + selectedStageId + '...', 'text-brand-cyan');
       try {
         const res = await fetch('/api/dispatch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ stageId: selectedStageId }) });
         const data = await res.json();
-        alert(data.message || 'Stage dispatch requested');
+        appendLog('Stage dispatch outcome: ' + (data.message || 'Success'), data.success ? 'text-brand-emerald' : 'text-brand-crimson');
       } catch (err) {
-        alert('Failed to dispatch stage: ' + err.message);
+        appendLog('Failed to dispatch stage: ' + err.message, 'text-brand-crimson');
       }
     });
 
@@ -469,27 +631,34 @@ export function renderDashboardHtml(options: DashboardHtmlOptions): string {
           currentState = { ...currentState, ...delta };
           renderDag();
           if (selectedStageId) selectStage(selectedStageId);
+          appendLog('Received live telemetry update from GitHub Actions');
         } catch (e) {}
       };
       evtSource.onerror = () => {
         const statusPill = document.getElementById('connection-status');
         statusPill.className = 'flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-brand-amber border border-brand-amber/30';
         document.getElementById('connection-text').textContent = 'SSE Reconnecting...';
+        appendLog('SSE connection dropped, retrying in 3s...', 'text-brand-amber');
       };
       evtSource.onopen = () => {
         const statusPill = document.getElementById('connection-status');
         statusPill.className = 'flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-brand-emerald border border-brand-emerald/30';
         document.getElementById('connection-text').textContent = 'GitHub SSE Active';
+        appendLog('Connected to GitHub Actions event stream', 'text-brand-emerald');
       };
     }
 
     document.getElementById('btn-refresh').addEventListener('click', async () => {
+      appendLog('Manual telemetry poll requested...');
       try {
         const res = await fetch('/api/state');
         currentState = await res.json();
         renderDag();
         if (selectedStageId) selectStage(selectedStageId);
-      } catch (e) {}
+        appendLog('Manual refresh completed', 'text-brand-emerald');
+      } catch (e) {
+        appendLog('Manual refresh error: ' + e.message, 'text-brand-crimson');
+      }
     });
 
     function escapeHtml(s) {
