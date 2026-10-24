@@ -4,6 +4,9 @@
   "private": true,
   "description": "Cross-Repo Orchestrator for GitHub Actions — define workflow execution order via pipeline YAML",
   "packageManager": "pnpm@10.12.1",
+  "bin": {
+    "pipeline-compose": "./packages/cli/dist/index.js"
+  },
   "scripts": {
     "build": "pnpm -r run build",
     "test": "vitest run",
