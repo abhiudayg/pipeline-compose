@@ -2,7 +2,7 @@
 
 **Run your GitHub workflows in a fixed order** — from one small pipeline file, without one giant workflow or fragile `workflow_run` chains.
 
-Part of [pipeline-compose](https://github.com/aeswibon/pipeline-compose).
+Part of [pipeline-compose](https://github.com/abhiudayg/pipeline-compose).
 
 ---
 
@@ -16,9 +16,9 @@ Part of [pipeline-compose](https://github.com/aeswibon/pipeline-compose).
 |-----------|-----|
 | 3+ workflows that should run in sequence on tag push | **run** + pipeline file |
 | One repo, one workflow, a few jobs | Native GitHub **`needs:`** |
-| Want generated YAML committed to git | [pipeline-compose-compile](https://github.com/aeswibon/pipeline-compose-compile) instead |
+| Want generated YAML committed to git | [pipeline-compose-compile](https://github.com/abhiudayg/pipeline-compose-compile) instead |
 
-You do **not** need compile, eval, or context-merge to get started. You **do** need [pipeline-compose-export](https://github.com/aeswibon/pipeline-compose-export) in any stage that passes data downstream (unless you upload the artifact manually).
+You do **not** need compile, eval, or context-merge to get started. You **do** need [pipeline-compose-export](https://github.com/abhiudayg/pipeline-compose-export) in any stage that passes data downstream (unless you upload the artifact manually).
 
 ---
 
@@ -122,7 +122,7 @@ Fetched at run time; `validate` warns that `catalog_from` needs network + token.
 
 **Run action: parallel by wave.** Stages whose `needs` are all satisfied run **concurrently** (same DAG level). The next wave starts only after the current wave finishes.
 
-**Compile action: parallel when GitHub can.** [pipeline-compose-compile](https://github.com/aeswibon/pipeline-compose-compile) emits native `needs:` jobs; GitHub runs independent jobs in parallel.
+**Compile action: parallel when GitHub can.** [pipeline-compose-compile](https://github.com/abhiudayg/pipeline-compose-compile) emits native `needs:` jobs; GitHub runs independent jobs in parallel.
 
 | Path | Parallel sibling stages | Overlapping runs |
 |------|-------------------------|------------------|
@@ -193,7 +193,7 @@ Copy this list when adding pipeline-compose to a repo:
 - [ ] Every stage workflow has **`workflow_dispatch:`** in `on:`  
 - [ ] Stage workflow **`inputs:`** match pipeline **`inputs:`** (names and types)  
 - [ ] Stages that pass data declare **`outputs:`** in the pipeline  
-- [ ] Those stages end with **[pipeline-compose-export](https://github.com/aeswibon/pipeline-compose-export)** (or equivalent artifact upload)  
+- [ ] Those stages end with **[pipeline-compose-export](https://github.com/abhiudayg/pipeline-compose-export)** (or equivalent artifact upload)  
 - [ ] List entry workflow under **`companion_workflows`** if you use strict validate  
 - [ ] Entry job has **`permissions: actions: write`** (and `contents: write` if stages need it)
 
@@ -279,7 +279,7 @@ jobs:
              "skip_publish":"${{ steps.meta.outputs.skip_publish }}"}
 ```
 
-Full copy-paste example: [run-tag-release](https://github.com/aeswibon/pipeline-compose/tree/master/examples/run-tag-release).
+Full copy-paste example: [run-tag-release](https://github.com/abhiudayg/pipeline-compose/tree/master/examples/run-tag-release).
 
 <!-- start usage -->
 ```yaml
@@ -329,7 +329,7 @@ Only if you run strict validation and have workflows that aren’t stages (like 
 **v1 or v2 pipeline?**  
 **v2** = one file, `pipelines:` map (good for one repo). **v1** = `name` + `stages` (good for one pipeline per file in a folder).
 
-**Cross-repo?** Add **`repo: org/repo`** on the stage and configure either **`repo_tokens_json`** or **`github_app_id` + `github_app_private_key`** on this action. See [export README](https://github.com/aeswibon/pipeline-compose-export) for same-repo setup first.
+**Cross-repo?** Add **`repo: org/repo`** on the stage and configure either **`repo_tokens_json`** or **`github_app_id` + `github_app_private_key`** on this action. See [export README](https://github.com/abhiudayg/pipeline-compose-export) for same-repo setup first.
 
 ### PR commit statuses (library → consumer)
 
@@ -368,7 +368,7 @@ When a stage sets `repo: other-org/other-repo`, pass tokens GitHub Actions resol
       {"other-org/other-repo":"${{ secrets.REMOTE_DISPATCH_TOKEN }}"}
 ```
 
-Tutorial: [docs/tutorials/cross-repo-pipeline.md](https://github.com/aeswibon/pipeline-compose/blob/master/docs/tutorials/cross-repo-pipeline.md)
+Tutorial: [docs/tutorials/cross-repo-pipeline.md](https://github.com/abhiudayg/pipeline-compose/blob/master/docs/tutorials/cross-repo-pipeline.md)
 
 Using a GitHub App instead of PAT map:
 
@@ -407,10 +407,10 @@ Using a GitHub App instead of PAT map:
 
 | Action | When |
 |--------|------|
-| [export](https://github.com/aeswibon/pipeline-compose-export) | **Required** for stages with **`outputs`** |
-| [compile](https://github.com/aeswibon/pipeline-compose-compile) | Alternative: generate static workflow |
-| [eval](https://github.com/aeswibon/pipeline-compose-eval) | Test **`when:`** expressions in isolation |
-| [context-merge](https://github.com/aeswibon/pipeline-compose-context-merge) | Manual JSON file; not used with run |
+| [export](https://github.com/abhiudayg/pipeline-compose-export) | **Required** for stages with **`outputs`** |
+| [compile](https://github.com/abhiudayg/pipeline-compose-compile) | Alternative: generate static workflow |
+| [eval](https://github.com/abhiudayg/pipeline-compose-eval) | Test **`when:`** expressions in isolation |
+| [context-merge](https://github.com/abhiudayg/pipeline-compose-context-merge) | Manual JSON file; not used with run |
 
 ## License
 

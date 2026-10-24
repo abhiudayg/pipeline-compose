@@ -2,7 +2,7 @@
 
 **Generate a normal GitHub Actions workflow from pipeline YAML** — so reviewers see a standard `needs:` graph in git.
 
-Optional alternative to [pipeline-compose-run](https://github.com/aeswibon/pipeline-compose-run). Part of [pipeline-compose](https://github.com/aeswibon/pipeline-compose).
+Optional alternative to [pipeline-compose-run](https://github.com/abhiudayg/pipeline-compose-run). Part of [pipeline-compose](https://github.com/abhiudayg/pipeline-compose).
 
 ---
 
@@ -72,7 +72,7 @@ jobs:
           check: "true"
 ```
 
-Example: [compile-check](https://github.com/aeswibon/pipeline-compose/tree/master/examples/compile-check).
+Example: [compile-check](https://github.com/abhiudayg/pipeline-compose/tree/master/examples/compile-check).
 
 <!-- start usage -->
 ```yaml
@@ -138,7 +138,7 @@ CI with **`check: true`** catches it.
 
 | Action | Role |
 |--------|------|
-| [pipeline-compose-run](https://github.com/aeswibon/pipeline-compose-run) | Runtime orchestrator (no codegen) |
+| [pipeline-compose-run](https://github.com/abhiudayg/pipeline-compose-run) | Runtime orchestrator (no codegen) |
 
 ## License
 

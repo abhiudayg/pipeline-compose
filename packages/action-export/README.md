@@ -2,9 +2,9 @@
 
 **Upload stage results so the next pipeline step can use them** — one action step instead of hand-written `jq` and artifact YAML.
 
-Required companion to [pipeline-compose-run](https://github.com/aeswibon/pipeline-compose-run) whenever a stage passes data forward.
+Required companion to [pipeline-compose-run](https://github.com/abhiudayg/pipeline-compose-run) whenever a stage passes data forward.
 
-Part of [pipeline-compose](https://github.com/aeswibon/pipeline-compose).
+Part of [pipeline-compose](https://github.com/abhiudayg/pipeline-compose).
 
 ---
 
@@ -147,8 +147,8 @@ Yes — same artifact name and **`outputs.json`** path. Export just avoids copy-
 
 | Action | Role |
 |--------|------|
-| [pipeline-compose-run](https://github.com/aeswibon/pipeline-compose-run) | Orchestrator; reads this artifact |
-| [pipeline-compose-context-merge](https://github.com/aeswibon/pipeline-compose-context-merge) | Different — local file in one workflow, not for run |
+| [pipeline-compose-run](https://github.com/abhiudayg/pipeline-compose-run) | Orchestrator; reads this artifact |
+| [pipeline-compose-context-merge](https://github.com/abhiudayg/pipeline-compose-context-merge) | Different — local file in one workflow, not for run |
 
 ## License
 

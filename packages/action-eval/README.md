@@ -2,9 +2,9 @@
 
 **Test the same conditions as pipeline `when:`** — inside any workflow, without running the full pipeline.
 
-Optional helper. [pipeline-compose-run](https://github.com/aeswibon/pipeline-compose-run) already evaluates **`when:`** on each stage automatically.
+Optional helper. [pipeline-compose-run](https://github.com/abhiudayg/pipeline-compose-run) already evaluates **`when:`** on each stage automatically.
 
-Part of [pipeline-compose](https://github.com/aeswibon/pipeline-compose).
+Part of [pipeline-compose](https://github.com/abhiudayg/pipeline-compose).
 
 ---
 
@@ -65,7 +65,7 @@ Same expression language as stage **`when:`** in pipeline YAML.
     context: '{"ci":{"passed":"true"}}'
 ```
 
-Example: [eval-conditional](https://github.com/aeswibon/pipeline-compose/tree/master/examples/eval-conditional).
+Example: [eval-conditional](https://github.com/abhiudayg/pipeline-compose/tree/master/examples/eval-conditional).
 
 <!-- start usage -->
 ```yaml
@@ -125,7 +125,7 @@ Yes — use **`== 'true'`**, not boolean true.
 
 | Action | Role |
 |--------|------|
-| [pipeline-compose-run](https://github.com/aeswibon/pipeline-compose-run) | Evaluates **`when:`** per stage automatically |
+| [pipeline-compose-run](https://github.com/abhiudayg/pipeline-compose-run) | Evaluates **`when:`** per stage automatically |
 
 ## License
 

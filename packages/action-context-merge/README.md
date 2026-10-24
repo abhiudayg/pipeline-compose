@@ -1,10 +1,10 @@
 # pipeline-compose-context-merge
 
-**Append stage results to a JSON file** — for custom workflows that don’t use [pipeline-compose-run](https://github.com/aeswibon/pipeline-compose-run).
+**Append stage results to a JSON file** — for custom workflows that don’t use [pipeline-compose-run](https://github.com/abhiudayg/pipeline-compose-run).
 
 Advanced / optional. Most teams should use **run + export** instead.
 
-Part of [pipeline-compose](https://github.com/aeswibon/pipeline-compose).
+Part of [pipeline-compose](https://github.com/abhiudayg/pipeline-compose).
 
 ---
 
@@ -56,7 +56,7 @@ This is **local to one workflow run**. It does **not** replace **export** artifa
     outputs: '{"version":"1.2.3"}'
 ```
 
-Example: [context-merge-manual](https://github.com/aeswibon/pipeline-compose/tree/master/examples/context-merge-manual).
+Example: [context-merge-manual](https://github.com/abhiudayg/pipeline-compose/tree/master/examples/context-merge-manual).
 
 <!-- start usage -->
 ```yaml
@@ -115,9 +115,9 @@ No — only within this run unless you commit/upload it yourself.
 
 | Action | Role |
 |--------|------|
-| [pipeline-compose-run](https://github.com/aeswibon/pipeline-compose-run) | Standard orchestration + **context** |
-| [pipeline-compose-export](https://github.com/aeswibon/pipeline-compose-export) | Artifact for **run** |
-| [pipeline-compose-eval](https://github.com/aeswibon/pipeline-compose-eval) | Evaluate expressions against merged JSON |
+| [pipeline-compose-run](https://github.com/abhiudayg/pipeline-compose-run) | Standard orchestration + **context** |
+| [pipeline-compose-export](https://github.com/abhiudayg/pipeline-compose-export) | Artifact for **run** |
+| [pipeline-compose-eval](https://github.com/abhiudayg/pipeline-compose-eval) | Evaluate expressions against merged JSON |
 
 ## License
 

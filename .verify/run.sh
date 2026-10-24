@@ -24,19 +24,19 @@ run_doctor() {
 
 run_unit() {
   echo "--- Phase 2: Unit Tests (Vitest) ---"
-  cd "$ROOT/pipeline-compose"
+  cd "$ROOT"
   pnpm test
 }
 
 run_static() {
   echo "--- Phase 3: Static & Typecheck Build ---"
-  cd "$ROOT/pipeline-compose"
+  cd "$ROOT"
   pnpm run build
 }
 
 run_functional() {
   echo "--- Phase 4: Functional CLI DAG & Compile ---"
-  cd "$ROOT/pipeline-compose"
+  cd "$ROOT"
   pnpm exec tsx packages/cli/src/main.ts validate .github/pipelines/pipeline.yml --workflows --strict --simulate
   pnpm exec tsx packages/cli/src/main.ts compile .github/pipelines/pipeline.yml -o /tmp/verify-compiled.yml
   echo "Generated workflow compiled successfully."
@@ -44,7 +44,7 @@ run_functional() {
 
 run_security() {
   echo "--- Phase 5: Security Audit & Jailbreak Defense ---"
-  cd "$ROOT/pipeline-compose"
+  cd "$ROOT"
   pnpm test packages/core/src/compile/security.test.ts
 }
 
