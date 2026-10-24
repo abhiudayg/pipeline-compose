@@ -185,6 +185,36 @@ concurrency:
 
 ---
 
+## Installation & CLI Setup
+
+### One-Line Install (macOS & Linux)
+
+Install the standalone binary into `~/.local/bin` (zero dependencies, requires Node 20+):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/abhiudayg/pipeline-compose/master/scripts/install.sh | bash
+```
+
+Or install globally via npm:
+
+```bash
+npm install -g https://github.com/abhiudayg/pipeline-compose.git
+```
+
+### Auto-Update
+
+Keep your installation up to date with a single command:
+
+```bash
+# Check if a new version is available
+pipeline-compose update --check
+
+# Upgrade to the latest release in-place
+pipeline-compose update
+```
+
+---
+
 ## Developer Ergonomics & CLI
 
 Pipeline Compose includes a powerful CLI for pre-merge validation, dry-run simulations, and monorepo task imports:

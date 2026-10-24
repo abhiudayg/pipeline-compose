@@ -113,17 +113,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path12) {
-      const ctrl = callVisitor(key, node, visitor, path12);
+    function visit_(key, node, visitor, path13) {
+      const ctrl = callVisitor(key, node, visitor, path13);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path12, ctrl);
-        return visit_(key, ctrl, visitor, path12);
+        replaceNode(key, path13, ctrl);
+        return visit_(key, ctrl, visitor, path13);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path12 = Object.freeze(path12.concat(node));
+          path13 = Object.freeze(path13.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path12);
+            const ci = visit_(i, node.items[i], visitor, path13);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -134,13 +134,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path12 = Object.freeze(path12.concat(node));
-          const ck = visit_("key", node.key, visitor, path12);
+          path13 = Object.freeze(path13.concat(node));
+          const ck = visit_("key", node.key, visitor, path13);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path12);
+          const cv = visit_("value", node.value, visitor, path13);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -161,17 +161,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path12) {
-      const ctrl = await callVisitor(key, node, visitor, path12);
+    async function visitAsync_(key, node, visitor, path13) {
+      const ctrl = await callVisitor(key, node, visitor, path13);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path12, ctrl);
-        return visitAsync_(key, ctrl, visitor, path12);
+        replaceNode(key, path13, ctrl);
+        return visitAsync_(key, ctrl, visitor, path13);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path12 = Object.freeze(path12.concat(node));
+          path13 = Object.freeze(path13.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path12);
+            const ci = await visitAsync_(i, node.items[i], visitor, path13);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -182,13 +182,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path12 = Object.freeze(path12.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path12);
+          path13 = Object.freeze(path13.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path13);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path12);
+          const cv = await visitAsync_("value", node.value, visitor, path13);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -215,23 +215,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path12) {
+    function callVisitor(key, node, visitor, path13) {
       if (typeof visitor === "function")
-        return visitor(key, node, path12);
+        return visitor(key, node, path13);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path12);
+        return visitor.Map?.(key, node, path13);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path12);
+        return visitor.Seq?.(key, node, path13);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path12);
+        return visitor.Pair?.(key, node, path13);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path12);
+        return visitor.Scalar?.(key, node, path13);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path12);
+        return visitor.Alias?.(key, node, path13);
       return void 0;
     }
-    function replaceNode(key, path12, node) {
-      const parent = path12[path12.length - 1];
+    function replaceNode(key, path13, node) {
+      const parent = path13[path13.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -841,10 +841,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path12, value) {
+    function collectionFromPath(schema, path13, value) {
       let v = value;
-      for (let i = path12.length - 1; i >= 0; --i) {
-        const k = path12[i];
+      for (let i = path13.length - 1; i >= 0; --i) {
+        const k = path13[i];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v;
@@ -863,7 +863,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path12) => path12 == null || typeof path12 === "object" && !!path12[Symbol.iterator]().next().done;
+    var isEmptyPath = (path13) => path13 == null || typeof path13 === "object" && !!path13[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -893,11 +893,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path12, value) {
-        if (isEmptyPath(path12))
+      addIn(path13, value) {
+        if (isEmptyPath(path13))
           this.add(value);
         else {
-          const [key, ...rest2] = path12;
+          const [key, ...rest2] = path13;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest2, value);
@@ -911,8 +911,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path12) {
-        const [key, ...rest2] = path12;
+      deleteIn(path13) {
+        const [key, ...rest2] = path13;
         if (rest2.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -926,8 +926,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path12, keepScalar) {
-        const [key, ...rest2] = path12;
+      getIn(path13, keepScalar) {
+        const [key, ...rest2] = path13;
         const node = this.get(key, true);
         if (rest2.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -945,8 +945,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path12) {
-        const [key, ...rest2] = path12;
+      hasIn(path13) {
+        const [key, ...rest2] = path13;
         if (rest2.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -956,8 +956,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path12, value) {
-        const [key, ...rest2] = path12;
+      setIn(path13, value) {
+        const [key, ...rest2] = path13;
         if (rest2.length === 0) {
           this.set(key, value);
         } else {
@@ -3472,9 +3472,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path12, value) {
+      addIn(path13, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path12, value);
+          this.contents.addIn(path13, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -3549,14 +3549,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path12) {
-        if (Collection.isEmptyPath(path12)) {
+      deleteIn(path13) {
+        if (Collection.isEmptyPath(path13)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path12) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path13) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -3571,10 +3571,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path12, keepScalar) {
-        if (Collection.isEmptyPath(path12))
+      getIn(path13, keepScalar) {
+        if (Collection.isEmptyPath(path13))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path12, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path13, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -3585,10 +3585,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path12) {
-        if (Collection.isEmptyPath(path12))
+      hasIn(path13) {
+        if (Collection.isEmptyPath(path13))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path12) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path13) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -3605,13 +3605,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path12, value) {
-        if (Collection.isEmptyPath(path12)) {
+      setIn(path13, value) {
+        if (Collection.isEmptyPath(path13)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path12), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path13), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path12, value);
+          this.contents.setIn(path13, value);
         }
       }
       /**
@@ -5571,9 +5571,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path12) => {
+    visit.itemAtPath = (cst, path13) => {
       let item = cst;
-      for (const [field, index] of path12) {
+      for (const [field, index] of path13) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -5582,23 +5582,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path12) => {
-      const parent = visit.itemAtPath(cst, path12.slice(0, -1));
-      const field = path12[path12.length - 1][0];
+    visit.parentCollection = (cst, path13) => {
+      const parent = visit.itemAtPath(cst, path13.slice(0, -1));
+      const field = path13[path13.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path12, item, visitor) {
-      let ctrl = visitor(item, path12);
+    function _visit(path13, item, visitor) {
+      let ctrl = visitor(item, path13);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path12.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path13.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -5609,10 +5609,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path12);
+            ctrl = ctrl(item, path13);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path12) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path13) : ctrl;
     }
     exports.visit = visit;
   }
@@ -6914,14 +6914,14 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs13 = this.flowScalar(this.type);
+              const fs14 = this.flowScalar(this.type);
               if (atNextItem || it.value) {
-                map.items.push({ start, key: fs13, sep: [] });
+                map.items.push({ start, key: fs14, sep: [] });
                 this.onKeyLine = true;
               } else if (it.sep) {
-                this.stack.push(fs13);
+                this.stack.push(fs14);
               } else {
-                Object.assign(it, { key: fs13, sep: [] });
+                Object.assign(it, { key: fs14, sep: [] });
                 this.onKeyLine = true;
               }
               return;
@@ -7049,13 +7049,13 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              const fs13 = this.flowScalar(this.type);
+              const fs14 = this.flowScalar(this.type);
               if (!it || it.value)
-                fc.items.push({ start: [], key: fs13, sep: [] });
+                fc.items.push({ start: [], key: fs14, sep: [] });
               else if (it.sep)
-                this.stack.push(fs13);
+                this.stack.push(fs14);
               else
-                Object.assign(it, { key: fs13, sep: [] });
+                Object.assign(it, { key: fs14, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -10314,7 +10314,7 @@ var require_compile = __commonJS({
       const schOrFunc = root.refs[ref];
       if (schOrFunc)
         return schOrFunc;
-      let _sch = resolve8.call(this, root, ref);
+      let _sch = resolve9.call(this, root, ref);
       if (_sch === void 0) {
         const schema = (_a = root.localRefs) === null || _a === void 0 ? void 0 : _a[ref];
         const { schemaId } = this.opts;
@@ -10341,7 +10341,7 @@ var require_compile = __commonJS({
     function sameSchemaEnv(s1, s2) {
       return s1.schema === s2.schema && s1.root === s2.root && s1.baseId === s2.baseId;
     }
-    function resolve8(root, ref) {
+    function resolve9(root, ref) {
       let sch;
       while (typeof (sch = this.refs[ref]) == "string")
         ref = sch;
@@ -10559,8 +10559,8 @@ var require_utils = __commonJS({
       }
       return ind;
     }
-    function removeDotSegments(path12) {
-      let input = path12;
+    function removeDotSegments(path13) {
+      let input = path13;
       const output = [];
       let nextSlash = -1;
       let len = 0;
@@ -10812,8 +10812,8 @@ var require_schemes = __commonJS({
         wsComponent.secure = void 0;
       }
       if (wsComponent.resourceName) {
-        const [path12, query] = wsComponent.resourceName.split("?");
-        wsComponent.path = path12 && path12 !== "/" ? path12 : void 0;
+        const [path13, query] = wsComponent.resourceName.split("?");
+        wsComponent.path = path13 && path13 !== "/" ? path13 : void 0;
         wsComponent.query = query;
         wsComponent.resourceName = void 0;
       }
@@ -10972,7 +10972,7 @@ var require_fast_uri = __commonJS({
       }
       return uri;
     }
-    function resolve8(baseURI, relativeURI, options) {
+    function resolve9(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
       const resolved = resolveComponent(parse(baseURI, schemelessOptions), parse(relativeURI, schemelessOptions), schemelessOptions, true);
       schemelessOptions.skipEscape = true;
@@ -11230,7 +11230,7 @@ var require_fast_uri = __commonJS({
     var fastUri = {
       SCHEMES,
       normalize: normalize4,
-      resolve: resolve8,
+      resolve: resolve9,
       resolveComponent,
       equal,
       serialize,
@@ -13903,8 +13903,8 @@ var require_ajv = __commonJS({
 });
 
 // src/main.ts
-import * as fs12 from "node:fs";
-import * as path11 from "node:path";
+import * as fs13 from "node:fs";
+import * as path12 from "node:path";
 import { execSync as execSync2 } from "node:child_process";
 
 // src/server.ts
@@ -17488,7 +17488,7 @@ function startDashboardServer(options) {
     res.writeHead(404, { "Content-Type": "text/plain" });
     res.end("Not Found");
   });
-  return new Promise((resolve8, reject) => {
+  return new Promise((resolve9, reject) => {
     let currentPort = port;
     let attempts = 0;
     const maxAttempts = 10;
@@ -17511,7 +17511,7 @@ function startDashboardServer(options) {
           const openCmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
           exec(`${openCmd} ${serverUrl}`);
         }
-        resolve8({
+        resolve9({
           server,
           port: actualPort,
           url: serverUrl,
@@ -17528,6 +17528,112 @@ function startDashboardServer(options) {
     };
     tryListen();
   });
+}
+
+// src/update.ts
+import * as fs12 from "node:fs";
+import * as path11 from "node:path";
+var GITHUB_REPO = "abhiudayg/pipeline-compose";
+var REMOTE_MANIFEST_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/master/package.json`;
+var REMOTE_BINARY_URL = `https://raw.githubusercontent.com/${GITHUB_REPO}/master/packages/cli/dist/index.js`;
+var CURRENT_VERSION = "1.17.2";
+async function runUpdate(options = {}) {
+  const { checkOnly = false, force = false } = options;
+  console.log(`Checking for updates (current: v${CURRENT_VERSION})...`);
+  let remoteVersion = "";
+  try {
+    const res = await fetch(REMOTE_MANIFEST_URL, { headers: { "User-Agent": "pipeline-compose-cli" } });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    const data = await res.json();
+    remoteVersion = data.version ?? "";
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`Failed to check remote version: ${msg}`);
+    process.exit(1);
+  }
+  if (!remoteVersion) {
+    console.error("Could not determine remote version from repository manifest.");
+    process.exit(1);
+  }
+  const isNewer = compareSemver(remoteVersion, CURRENT_VERSION) > 0;
+  if (checkOnly) {
+    if (isNewer) {
+      console.log(`An update is available: v${CURRENT_VERSION} -> v${remoteVersion}`);
+      console.log("Run `pipeline-compose update` to upgrade.");
+    } else {
+      console.log(`pipeline-compose is up to date (v${CURRENT_VERSION}).`);
+    }
+    return;
+  }
+  if (!isNewer && !force) {
+    console.log(`pipeline-compose is already at the latest version (v${CURRENT_VERSION}).`);
+    console.log("Run `pipeline-compose update --force` to re-download the latest release.");
+    return;
+  }
+  const execPath = process.argv[1];
+  if (!execPath) {
+    console.error("Could not locate the running pipeline-compose executable.");
+    process.exit(1);
+  }
+  let targetPath = "";
+  try {
+    targetPath = fs12.realpathSync(execPath);
+  } catch {
+    targetPath = path11.resolve(execPath);
+  }
+  if (targetPath.endsWith(".ts")) {
+    console.log(`Running directly from source: ${targetPath}`);
+    console.log("To update development workspace, run: git pull && pnpm run build");
+    return;
+  }
+  console.log(`Downloading latest binary from ${GITHUB_REPO}...`);
+  let binaryContent = "";
+  try {
+    const res = await fetch(REMOTE_BINARY_URL, { headers: { "User-Agent": "pipeline-compose-cli" } });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+    }
+    binaryContent = await res.text();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`Failed to download binary: ${msg}`);
+    process.exit(1);
+  }
+  if (!binaryContent.startsWith("#!/usr/bin/env node") || binaryContent.length < 5e4) {
+    console.error("Downloaded file failed integrity validation (invalid header or corrupted bundle).");
+    process.exit(1);
+  }
+  const tmpPath = `${targetPath}.tmp.${Date.now()}`;
+  try {
+    fs12.writeFileSync(tmpPath, binaryContent, { mode: 493 });
+    fs12.renameSync(tmpPath, targetPath);
+    console.log(`Successfully updated pipeline-compose to v${remoteVersion}!`);
+    console.log(`Binary updated at: ${targetPath}`);
+  } catch (err) {
+    if (fs12.existsSync(tmpPath)) {
+      try {
+        fs12.unlinkSync(tmpPath);
+      } catch {
+      }
+    }
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`Failed to replace binary at ${targetPath}: ${msg}`);
+    console.error("Try running with sudo or re-running the installation script.");
+    process.exit(1);
+  }
+}
+function compareSemver(a, b) {
+  const pa = a.replace(/^v/, "").split(".").map((n) => parseInt(n, 10) || 0);
+  const pb = b.replace(/^v/, "").split(".").map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) {
+    const na = pa[i] ?? 0;
+    const nb = pb[i] ?? 0;
+    if (na > nb) return 1;
+    if (na < nb) return -1;
+  }
+  return 0;
 }
 
 // src/main.ts
@@ -17562,7 +17668,7 @@ function syncUsage() {
   process.exit(1);
 }
 function rootUsage() {
-  console.error("Usage: pipeline-compose <compile|eval|validate|sync|init|import|local|state|visualize|dashboard|serve> ...");
+  console.error("Usage: pipeline-compose <compile|eval|validate|sync|init|import|local|state|visualize|dashboard|serve|update> ...");
   process.exit(1);
 }
 function dashboardUsage() {
@@ -17608,11 +17714,11 @@ function parseJsonObject(label, raw) {
   }
 }
 function resolveRepoRoot(explicit) {
-  return path11.resolve(explicit ?? process.cwd());
+  return path12.resolve(explicit ?? process.cwd());
 }
 function loadResolvedPipeline(target) {
-  const absoluteTarget = path11.resolve(target);
-  if (fs12.statSync(absoluteTarget).isDirectory()) {
+  const absoluteTarget = path12.resolve(target);
+  if (fs13.statSync(absoluteTarget).isDirectory()) {
     return validatePipelineDocuments(
       loadPipelineDocumentsFromInputs({ pipelineDir: absoluteTarget })
     );
@@ -17620,15 +17726,15 @@ function loadResolvedPipeline(target) {
   return validatePipelineDocument(loadPipelineDocumentFromFile(absoluteTarget));
 }
 function loadDocumentsForValidate(target) {
-  const absoluteTarget = path11.resolve(target);
-  if (fs12.statSync(absoluteTarget).isDirectory()) {
+  const absoluteTarget = path12.resolve(target);
+  if (fs13.statSync(absoluteTarget).isDirectory()) {
     return loadPipelineDocumentsFromInputs({ pipelineDir: absoluteTarget });
   }
   return [loadPipelineDocumentFromFile(absoluteTarget)];
 }
 function loadResolvedPipelineForValidate(target) {
-  const absoluteTarget = path11.resolve(target);
-  if (fs12.statSync(absoluteTarget).isDirectory()) {
+  const absoluteTarget = path12.resolve(target);
+  if (fs13.statSync(absoluteTarget).isDirectory()) {
     return validatePipelineDocumentsForReport(
       loadPipelineDocumentsFromInputs({ pipelineDir: absoluteTarget })
     );
@@ -17636,8 +17742,8 @@ function loadResolvedPipelineForValidate(target) {
   return validatePipelineDocumentForReport(loadPipelineDocumentFromFile(absoluteTarget));
 }
 function loadCatalogIssuesForValidate(target) {
-  const absoluteTarget = path11.resolve(target);
-  if (fs12.statSync(absoluteTarget).isDirectory()) {
+  const absoluteTarget = path12.resolve(target);
+  if (fs13.statSync(absoluteTarget).isDirectory()) {
     return loadPipelineDocumentsFromInputs({ pipelineDir: absoluteTarget }).flatMap(
       collectDocumentCatalogIssues
     );
@@ -17645,8 +17751,8 @@ function loadCatalogIssuesForValidate(target) {
   return collectDocumentCatalogIssues(loadPipelineDocumentFromFile(absoluteTarget));
 }
 function compileSourceLabel(target) {
-  const absoluteTarget = path11.resolve(target);
-  if (fs12.statSync(absoluteTarget).isDirectory()) {
+  const absoluteTarget = path12.resolve(target);
+  if (fs13.statSync(absoluteTarget).isDirectory()) {
     return `${target.replace(/\/$/, "")}/`;
   }
   return target;
@@ -17686,18 +17792,18 @@ function runCompile(args) {
   });
   const outputPath = output || ".github/workflows/pipeline.yml";
   if (check) {
-    if (!fs12.existsSync(outputPath)) {
+    if (!fs13.existsSync(outputPath)) {
       console.error("Check mode requires an existing output file");
       process.exit(1);
     }
-    if (fs12.readFileSync(outputPath, "utf8") !== generated) {
+    if (fs13.readFileSync(outputPath, "utf8") !== generated) {
       console.error("Stale generated workflow");
       process.exit(1);
     }
     console.log("OK");
   } else if (args.includes("-o") || output) {
-    fs12.mkdirSync(path11.dirname(outputPath), { recursive: true });
-    fs12.writeFileSync(outputPath, generated);
+    fs13.mkdirSync(path12.dirname(outputPath), { recursive: true });
+    fs13.writeFileSync(outputPath, generated);
     console.log(`Wrote ${outputPath}`);
   } else {
     process.stdout.write(generated);
@@ -17782,7 +17888,7 @@ async function runValidateAsync(args) {
   const catalogIssues = loadCatalogIssuesForValidate(target);
   let repoTokenSlugs;
   if (repoTokensFile) {
-    const raw = fs12.readFileSync(path11.resolve(repoTokensFile), "utf8");
+    const raw = fs13.readFileSync(path12.resolve(repoTokensFile), "utf8");
     const parsed = JSON.parse(raw);
     repoTokenSlugs = new Set(Object.keys(parsed));
   }
@@ -17794,7 +17900,7 @@ async function runValidateAsync(args) {
     repoTokenSlugs,
     extraIssues: catalogIssues,
     documents,
-    policy: policyFile ? loadValidatePolicyFromFile(path11.resolve(policyFile)) : void 0
+    policy: policyFile ? loadValidatePolicyFromFile(path12.resolve(policyFile)) : void 0
   });
   if (checkRepoAccess) {
     const token = process.env.GITHUB_TOKEN ?? process.env.GH_TOKEN;
@@ -17816,7 +17922,7 @@ async function runValidateAsync(args) {
     if (!simulate) {
       throw new Error("--rerun-state requires --simulate");
     }
-    const raw = fs12.readFileSync(path11.resolve(rerunStateFile), "utf8");
+    const raw = fs13.readFileSync(path12.resolve(rerunStateFile), "utf8");
     const previousState = parseRerunState(raw);
     if (!previousState) {
       throw new Error(`Invalid rerun state JSON: ${rerunStateFile}`);
@@ -17880,7 +17986,7 @@ function runInit(args) {
       pipelineName,
       force
     });
-    console.log(`Wrote ${path11.relative(resolvedRoot, outputPath)} (${result.stages.length} stage(s))`);
+    console.log(`Wrote ${path12.relative(resolvedRoot, outputPath)} (${result.stages.length} stage(s))`);
     if (result.skipped.length > 0) {
       console.log("");
       console.log("Skipped workflows:");
@@ -17971,20 +18077,20 @@ function runImport(args) {
     }
   }
   const defaultConfig = tool === "turbo" ? "turbo.json" : tool === "nx" ? "nx.json" : "common/config/rush/command-line.json";
-  const configPath = path11.resolve(config || defaultConfig);
-  if (!fs12.existsSync(configPath)) {
+  const configPath = path12.resolve(config || defaultConfig);
+  if (!fs13.existsSync(configPath)) {
     console.error(`Config not found: ${configPath}`);
     process.exit(1);
   }
-  const raw = JSON.parse(fs12.readFileSync(configPath, "utf8"));
+  const raw = JSON.parse(fs13.readFileSync(configPath, "utf8"));
   const graph = tool === "turbo" ? parseTurboTaskGraph(raw) : tool === "nx" ? parseNxTargetDefaults(raw) : parseRushCommandLine(raw);
   const stages = stagesFromMonorepoTaskGraph(graph, {
     workflowPattern: workflowPattern || void 0
   });
   const yaml = renderImportedPipelineYaml(pipelineName, stages);
-  const outputPath = path11.resolve(output || ".github/pipelines/imported.yml");
-  fs12.mkdirSync(path11.dirname(outputPath), { recursive: true });
-  fs12.writeFileSync(outputPath, yaml);
+  const outputPath = path12.resolve(output || ".github/pipelines/imported.yml");
+  fs13.mkdirSync(path12.dirname(outputPath), { recursive: true });
+  fs13.writeFileSync(outputPath, yaml);
   console.log(`Wrote ${outputPath} (${stages.length} stage(s) from ${tool})`);
   console.log("ponytail: workflow paths are placeholders; add workflows or re-point stages.");
 }
@@ -18017,18 +18123,18 @@ function runLocal(args) {
   if (!target) {
     localUsage();
   }
-  const absoluteTarget = path11.resolve(target);
-  if (!fs12.existsSync(absoluteTarget)) {
+  const absoluteTarget = path12.resolve(target);
+  if (!fs13.existsSync(absoluteTarget)) {
     console.error(`Pipeline file not found: ${target}`);
     process.exit(1);
   }
   const pipeline = loadPipelineDocumentFromFile(absoluteTarget);
   const resolved = validatePipelineDocument(pipeline);
   const pipelineName = resolved.name;
-  const resolvedRoot = path11.resolve(repoRoot || process.cwd());
-  const resolvedWorkspace = path11.resolve(workspace || ".pipeline-compose/repos");
-  const resolvedArtifacts = path11.resolve(artifactDir || ".pipeline-compose/artifacts");
-  const resolvedStateDir = path11.resolve(stateDir || resolvedRoot);
+  const resolvedRoot = path12.resolve(repoRoot || process.cwd());
+  const resolvedWorkspace = path12.resolve(workspace || ".pipeline-compose/repos");
+  const resolvedArtifacts = path12.resolve(artifactDir || ".pipeline-compose/artifacts");
+  const resolvedStateDir = path12.resolve(stateDir || resolvedRoot);
   const result = runPipelineLocal(
     resolved,
     resolvedRoot,
@@ -18067,7 +18173,7 @@ function runState(args) {
       stateDir = args[++i] ?? "";
     }
   }
-  const resolvedDir = path11.resolve(stateDir || process.cwd());
+  const resolvedDir = path12.resolve(stateDir || process.cwd());
   if (subcommand === "list") {
     const pipelineName = args[1] === "--state-dir" ? void 0 : args[1];
     const records = listPipelineStates(resolvedDir, pipelineName);
@@ -18168,14 +18274,14 @@ function runVisualize(args) {
   if (!target) {
     visualizeUsage();
   }
-  const absoluteTarget = path11.resolve(target);
-  if (!fs12.existsSync(absoluteTarget)) {
+  const absoluteTarget = path12.resolve(target);
+  if (!fs13.existsSync(absoluteTarget)) {
     console.error(`Pipeline file not found: ${target}`);
     process.exit(1);
   }
   const pipeline = loadPipelineDocumentFromFile(absoluteTarget);
   const resolved = validatePipelineDocument(pipeline);
-  const resolvedStateDir = stateDir ? path11.resolve(stateDir) : void 0;
+  const resolvedStateDir = stateDir ? path12.resolve(stateDir) : void 0;
   let state;
   if (resolvedStateDir) {
     const records = listPipelineStates(resolvedStateDir, resolved.name);
@@ -18186,9 +18292,9 @@ function runVisualize(args) {
     state = { ...liveState, ...state };
   }
   const html = renderPipelineHtml(resolved, { state, title: resolved.name });
-  const outPath = path11.resolve(outputPath || "pipeline-visualization.html");
-  fs12.mkdirSync(path11.dirname(outPath), { recursive: true });
-  fs12.writeFileSync(outPath, html);
+  const outPath = path12.resolve(outputPath || "pipeline-visualization.html");
+  fs13.mkdirSync(path12.dirname(outPath), { recursive: true });
+  fs13.writeFileSync(outPath, html);
   console.log(`Wrote ${outPath}`);
   if (githubSummary) {
     const summaryPath = process.env.GITHUB_STEP_SUMMARY;
@@ -18234,7 +18340,7 @@ function runVisualize(args) {
       const label = stage.workflow ?? stage.run ?? stage.pipeline_file ?? "";
       summary.push(`| **${stage.id}**${label ? `<br>\`${label}\`` : ""} | ${icon} ${s?.status ?? "pending"} |`);
     }
-    fs12.appendFileSync(summaryPath, "\n" + summary.join("\n") + "\n");
+    fs13.appendFileSync(summaryPath, "\n" + summary.join("\n") + "\n");
   }
   if (openBrowser) {
     const platform = process.platform;
@@ -18308,6 +18414,10 @@ if (command === "compile") {
   runVisualize(rest);
 } else if (command === "dashboard" || command === "serve") {
   await runDashboard(rest);
+} else if (command === "update") {
+  const checkOnly = rest.includes("--check");
+  const force = rest.includes("--force");
+  await runUpdate({ checkOnly, force });
 } else {
   rootUsage();
 }

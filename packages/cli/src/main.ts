@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { execSync } from 'node:child_process';
 import { startDashboardServer } from './server.js';
+import { runUpdate } from './update.js';
 import {
   buildValidateReport,
   buildSyncPlan,
@@ -85,7 +86,12 @@ function syncUsage(): never {
 }
 
 function rootUsage(): never {
-  console.error('Usage: pipeline-compose <compile|eval|validate|sync|init|import|local|state|visualize|dashboard|serve> ...');
+  console.error('Usage: pipeline-compose <compile|eval|validate|sync|init|import|local|state|visualize|dashboard|serve|update> ...');
+  process.exit(1);
+}
+
+function updateUsage(): never {
+  console.error('Usage: pipeline-compose update [--check] [--force]');
   process.exit(1);
 }
 
@@ -952,6 +958,10 @@ if (command === 'compile') {
   runVisualize(rest);
 } else if (command === 'dashboard' || command === 'serve') {
   await runDashboard(rest);
+} else if (command === 'update') {
+  const checkOnly = rest.includes('--check');
+  const force = rest.includes('--force');
+  await runUpdate({ checkOnly, force });
 } else {
   rootUsage();
 }
